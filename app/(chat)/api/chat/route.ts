@@ -127,7 +127,18 @@ export async function POST(request: Request) {
     }
 
     const messagesFromDb = await getMessagesByChatId({ id });
-    const uiMessages = [...convertToUIMessages(messagesFromDb), message];
+    const [filteredMessage, fileData] = await extractFileData(message);
+    const uiMessages = [
+      ...convertToUIMessages(messagesFromDb),
+      filteredMessage,
+    ];
+    const modelMessages = [...convertToModelMessages(uiMessages)];
+
+    if (fileData)
+      modelMessages.unshift({
+        role: "system",
+        content: `File content: ${fileData}`,
+      });
 
     const { longitude, latitude, city, country } = geolocation(request);
 
@@ -142,9 +153,9 @@ export async function POST(request: Request) {
       messages: [
         {
           chatId: id,
-          id: message.id,
+          id: filteredMessage.id,
           role: "user",
-          parts: message.parts,
+          parts: filteredMessage.parts,
           attachments: [],
           createdAt: new Date(),
         },
@@ -166,7 +177,7 @@ export async function POST(request: Request) {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
-          messages: convertToModelMessages(uiMessages),
+          messages: modelMessages,
           stopWhen: stepCountIs(5),
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
@@ -268,4 +279,20 @@ export async function DELETE(request: Request) {
   const deletedChat = await deleteChatById({ id });
 
   return Response.json(deletedChat, { status: 200 });
+}
+
+export async function extractFileData(
+  message: ChatMessage,
+): Promise<[ChatMessage, string | null]> {
+  const filteredParts = [];
+  let fileContent = null;
+  for (const part of message.parts) {
+    console.log(part);
+    if (part.type === "file" && part.mediaType === "text/plain") {
+      const file = await fetch(part.url);
+      fileContent = await file.text();
+    } else filteredParts.push(part);
+  }
+
+  return [{ ...message, parts: filteredParts }, fileContent];
 }
