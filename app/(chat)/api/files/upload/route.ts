@@ -14,11 +14,15 @@ const FileSchema = z.object({
     // Update the file type based on the kind of files you want to accept
     .refine(
       (file) =>
-        ["image/jpeg", "image/png", "application/pdf", "text/plain"].includes(
-          file.type,
-        ),
+        [
+          "image/jpeg",
+          "image/png",
+          "application/pdf",
+          "text/plain",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ].includes(file.type),
       {
-        message: "File type should be JPEG, PNG, PDF or TXT",
+        message: "File type should be JPEG, PNG, PDF, TXT or DOCX",
       },
     ),
 });

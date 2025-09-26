@@ -42,6 +42,7 @@ import type { ChatModel } from "@/lib/ai/models";
 import type { VisibilityType } from "@/components/visibility-selector";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { openai } from "@ai-sdk/openai";
+import mammoth from "mammoth";
 
 export const maxDuration = 60;
 
@@ -165,10 +166,12 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const httpTransport = new StreamableHTTPClientTransport(new URL('http://146.103.97.69:8765/mcp'));
+    const httpTransport = new StreamableHTTPClientTransport(
+      new URL("http://146.103.97.69:8765/mcp"),
+    );
     const httpClient = await experimental_createMCPClient({
       transport: httpTransport,
-    })
+    });
 
     const mcpTools = await httpClient.tools();
 
@@ -182,10 +185,7 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : [
-                  "web_search",
-                  "createPdf",
-                ],
+              : ["web_search", "createPdf"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             web_search: openai.tools.webSearch({
@@ -287,11 +287,31 @@ export async function extractFileData(
   const filteredParts = [];
   let fileContent = null;
   for (const part of message.parts) {
-    console.log(part);
-    if (part.type === "file" && part.mediaType === "text/plain") {
-      const file = await fetch(part.url);
-      fileContent = await file.text();
-    } else filteredParts.push(part);
+    if (
+      part.type === "file" &&
+      (part.mediaType === "text/plain" ||
+        part.mediaType ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    ) {
+      if (part.mediaType === "text/plain") {
+        const file = await fetch(part.url);
+        fileContent = await file.text();
+      }
+
+      if (
+        part.mediaType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        const file = await fetch(part.url);
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const rawText = await mammoth.extractRawText({ buffer });
+        fileContent = rawText.value;
+      }
+    } else {
+      filteredParts.push(part);
+    }
   }
 
   return [{ ...message, parts: filteredParts }, fileContent];
