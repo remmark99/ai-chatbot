@@ -55,23 +55,23 @@ const SdkPDFTemplate = ({
             ОГРН 102860579226
           </div>
         </div>
-      </div>
 
-      <hr className="border-t-4 border-black mt-2" />
-      <hr className="border-t border-white" />
-      <hr className="border-t-2 border-black" />
+        <hr className="border-t-4 border-black mt-2" />
+        <hr className="border-t border-white" />
+        <hr className="border-t-2 border-black" />
 
-      {/* Intro line with outgoing number and recipient */}
-      <div className="mt-1 flex justify-between">
-        <div>
-          Исх. № {content.offerNumber} от {content.offerDate}г.
+        {/* Intro line with outgoing number and recipient */}
+        <div className="mt-1 flex justify-between">
+          <div>
+            Исх. № {content.offerNumber} от {content.offerDate}г.
+          </div>
+          <div>{content.receiver}</div>
         </div>
-        <div>{content.receiver}</div>
-      </div>
 
-      <h1 className="text-center text-base mt-24 font-bold">
-        Коммерческое предложение.
-      </h1>
+        <h1 className="text-center text-base mt-24 font-bold">
+          Коммерческое предложение.
+        </h1>
+      </div>
 
       {/* Table */}
       {children}

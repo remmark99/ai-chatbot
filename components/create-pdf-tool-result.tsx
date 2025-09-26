@@ -29,7 +29,7 @@ const templateMap: Record<
 > = {
   emonaev: { component: EmonaevPDFTemplate, tableOffset: 80 },
   remmark: { component: RemmarkPDFTemplate, tableOffset: 72 },
-  sdk: { component: SdkPDFTemplate, tableOffset: 72 },
+  sdk: { component: SdkPDFTemplate, tableOffset: 110 },
 };
 
 applyPlugin(jsPDF);
@@ -86,8 +86,7 @@ const CreatePDFToolResult = ({ content }: Props) => {
               (doc.lastAutoTable.pageNumber === 1
                 ? 0
                 : doc.lastAutoTable.pageNumber) *
-                205 +
-              tableOffset,
+                205,
             callback: function (doc) {
               doc.save(content.filename.split(".")[0]);
             },
