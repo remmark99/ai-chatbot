@@ -24,6 +24,13 @@ const SdkPDFTemplate = ({
         className="w-[850px] text-xs bg-white tracking-wide relative font-bold p-10"
       >
         <div className="text-center">
+          <img
+            src="/images/sdk-logo.png"
+            alt="Лого СДК"
+            width={100}
+            height={100}
+            className="absolute left-10 top-10"
+          />
           <div>Российская Федерация</div>
           <div>Тюменская область</div>
           <div>Ханты-Мансийский автономный округ - ЮГРА</div>
@@ -105,6 +112,13 @@ const SdkPDFTemplate = ({
           момента подписания документа о приемке и составляет 12 (двенадцать)
           месяцев.
         </div>
+        <img
+          src="/images/sdk-seal.png"
+          alt="Печать СДК"
+          width={200}
+          height={200}
+          className="absolute right-40 mt-2"
+        />
       </div>
     </div>
   );
