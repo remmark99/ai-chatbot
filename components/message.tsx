@@ -200,19 +200,19 @@ const PurePreviewMessage = ({
                 );
               }
 
-              if (type === "tool-createPdf") {
+              if (type === "tool-showPdf") {
                 const { toolCallId, state } = part;
 
                 return (
                   <Tool key={toolCallId} defaultOpen={true}>
-                    <ToolHeader type="tool-createPdf" state={state} />
+                    <ToolHeader type="tool-showPdf" state={state} />
                     <ToolContent>
                       {state === "input-available" && (
                         <ToolInput input={part.input} />
                       )}
                       {state === "output-available" && (
                         <ToolOutput
-                          output={<CreatePDFToolResult content={part.output.structuredContent} />}
+                          output={<CreatePDFToolResult content={part.output} />}
                           errorText={undefined}
                         />
                       )}

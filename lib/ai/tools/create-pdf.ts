@@ -33,9 +33,9 @@ export const PDFSchema = z.object({
   offerNumber: z.string().describe("Номер КП"),
 });
 
-export const createPdf = tool({
+export const showPdf = tool({
   description:
-    "Создает коммерческое предложение в виде pdf файла. Вызывать только если пользователь конкретно попросит дать ему коммерческое предложение.",
+    "Отображает готовый PDF файл пользователю и дает ссылку на скачивание",
   inputSchema: PDFSchema,
   execute: async ({
     filename,

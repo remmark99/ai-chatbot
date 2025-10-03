@@ -26,6 +26,7 @@ import { createDocument } from "@/lib/ai/tools/create-document";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { getWeather } from "@/lib/ai/tools/get-weather";
+import { showPdf } from "@/lib/ai/tools/create-pdf";
 import { isProductionEnvironment } from "@/lib/constants";
 import { myProvider } from "@/lib/ai/providers";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
@@ -166,14 +167,14 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const httpTransport = new StreamableHTTPClientTransport(
-      new URL("http://146.103.97.69:8765/mcp"),
-    );
-    const httpClient = await experimental_createMCPClient({
-      transport: httpTransport,
-    });
+    // const httpTransport = new StreamableHTTPClientTransport(
+    //   new URL("http://146.103.97.69:8765/mcp"),
+    // );
+    // const httpClient = await experimental_createMCPClient({
+    //   transport: httpTransport,
+    // });
 
-    const mcpTools = await httpClient.tools();
+    // const mcpTools = await httpClient.tools();
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
@@ -185,7 +186,7 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : ["web_search", "createPdf"],
+              : ["web_search", "showPdf"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             web_search: openai.tools.webSearch({
@@ -197,11 +198,12 @@ export async function POST(request: Request) {
                 country: "RU",
               },
             }),
-            createPdf: tool({
-              description: mcpTools["createPdf"].description,
-              inputSchema: mcpTools["createPdf"].inputSchema,
-              execute: mcpTools["createPdf"].execute,
-            }),
+            showPdf,
+            // createPdf: tool({
+            //   description: mcpTools["createPdf"].description,
+            //   inputSchema: mcpTools["createPdf"].inputSchema,
+            //   execute: mcpTools["createPdf"].execute,
+            // }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,

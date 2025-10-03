@@ -82,6 +82,7 @@ const CreatePDFToolResult = ({ content }: Props) => {
           console.log(doc.lastAutoTable);
           doc.html(footerRef.current!, {
             y:
+              5 +
               doc.lastAutoTable.finalY +
               (doc.lastAutoTable.pageNumber === 1
                 ? 0
