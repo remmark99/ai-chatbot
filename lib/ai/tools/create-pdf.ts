@@ -58,7 +58,7 @@ export const PDFSchema = z
 
 export const showPdf = tool({
   description:
-    "Отображает готовый PDF файл пользователю и дает ссылку на скачивание",
+    "Отображает готовое коммерческое предложение в виде pdf-файла пользователю и дает ссылку на скачивание",
   inputSchema: PDFSchema,
   execute: async ({
     filename,

@@ -112,13 +112,17 @@ const SdkPDFTemplate = ({
           момента подписания документа о приемке и составляет 12 (двенадцать)
           месяцев.
         </div>
-        <img
-          src="/images/sdk-seal.png"
-          alt="Печать СДК"
-          width={200}
-          height={200}
-          className="absolute right-40 mt-2"
-        />
+        <div className="flex justify-between relative mt-5">
+          <img
+            src="/images/sdk-seal.png"
+            alt="Печать Реммарк"
+            width={200}
+            height={200}
+            className="absolute right-40"
+          />
+          <span>Директор</span>
+          <span>/ Каминский Д.С.</span>
+        </div>
       </div>
     </div>
   );
