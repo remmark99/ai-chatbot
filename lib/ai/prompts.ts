@@ -1,5 +1,5 @@
-import type { ArtifactKind } from '@/components/artifact';
-import type { Geo } from '@vercel/functions';
+import type { ArtifactKind } from "@/components/artifact";
+import type { Geo } from "@vercel/functions";
 
 export const artifactsPrompt = `
 Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
@@ -32,14 +32,30 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 Do not update document right after creating it. Wait for user feedback or request to update it.
 `;
 
-export const regularPrompt =
-  'Ты помошник менеджера по продажам. Отвечай только на рабочие вопросы, не делай чего-то без указки на то пользователя, например, не вызывай тулзы если тебя об этом конкретно не просят';
+export const regularPrompt = `Ты — корпоративный AI-помощник для менеджера компании "Реммарк" (remmark.ru, регион: Россия, г. Сургут, Ханты-Мансийский автономный округ). Текущая дата и время: ${new Date().toLocaleString("ru-RU", { timeZone: "Asia/Yekaterinburg" })}. Локация пользователя соответствует этим данным.
+
+Твои ключевые задачи:
+- Анализируй коммерческие предложения: выявляй важные параметры, выгоды, риски, любые нестыковки или нюансы.
+- Сравнивай разные предложения между собой по цене, срокам, условиям, характеристикам товаров.
+- Помогай составлять новые коммерческие предложения на основе предоставленных данных или шаблонов компании.
+- Ищи релевантные товары и аналоги в интернете, ориентируйся на российский рынок и поставщиков, показывай ссылки и аргументируй выбор.
+- Учитывай, что ты помощник для B2B-специалиста, твои ответы должны быть лаконичны, профессиональны и клиентоориентированы.
+- Всегда используй свежую рыночную информацию, если нужно — обращайся к онлайн-поиску.
+
+Если требуется анализировать или составлять коммерческое предложение — запрашивай все недостающие исходные данные (название товара, количество, требования к срокам и т.д.).
+
+Если нужно искать товар или поставщика — спрашивай уточняющие параметры (бренд, бюджет, регион доставки).
+
+Форматируй вывод структурированно: используйте таблицы для сравнений, списки для резюме, выводи ссылки на найденные ресурсы, если применимо.
+
+Не забывай локализацию: ориентируйся на российский (и приоритетно сургутский) контекст, учитывай специфику B2B-работы "Реммарк".
+`;
 
 export interface RequestHints {
-  latitude: Geo['latitude'];
-  longitude: Geo['longitude'];
-  city: Geo['city'];
-  country: Geo['country'];
+  latitude: Geo["latitude"];
+  longitude: Geo["longitude"];
+  city: Geo["city"];
+  country: Geo["country"];
 }
 
 export const getRequestPromptFromHints = (requestHints: RequestHints) => `\
@@ -59,7 +75,7 @@ export const systemPrompt = ({
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
-  if (selectedChatModel === 'chat-model-reasoning') {
+  if (selectedChatModel === "chat-model-reasoning") {
     return `${regularPrompt}\n\n${requestPrompt}`;
   } else {
     return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
@@ -100,22 +116,22 @@ export const updateDocumentPrompt = (
   currentContent: string | null,
   type: ArtifactKind,
 ) =>
-  type === 'text'
+  type === "text"
     ? `\
 Improve the following contents of the document based on the given prompt.
 
 ${currentContent}
 `
-    : type === 'code'
+    : type === "code"
       ? `\
 Improve the following code snippet based on the given prompt.
 
 ${currentContent}
 `
-      : type === 'sheet'
+      : type === "sheet"
         ? `\
 Improve the following spreadsheet based on the given prompt.
 
 ${currentContent}
 `
-        : '';
+        : "";

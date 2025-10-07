@@ -195,6 +195,7 @@ export async function POST(request: Request) {
                 type: "approximate",
                 city: "Surgut",
                 region: "Khanty-Mansy Autonomous Region",
+                timezone: "Asia/Yekaterinburg",
                 country: "RU",
               },
             }),
