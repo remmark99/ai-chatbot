@@ -6,9 +6,10 @@ import { z } from "zod";
 interface Props {
   products: z.infer<typeof ProductSchema>[];
   ref: ForwardedRef<HTMLTableElement>;
+  showCharacteristics: boolean;
 }
 
-const TemplateTable = ({ products, ref }: Props) => {
+const TemplateTable = ({ showCharacteristics, products, ref }: Props) => {
   return (
     <table
       className="min-w-full border border-black bg-white mt-3"
@@ -23,10 +24,12 @@ const TemplateTable = ({ products, ref }: Props) => {
           <th className="border border-black px-2 py-1 align-middle font-medium text-gray-900">
             Наименование товара
           </th>
-          <th className="border border-black px-2 py-1 align-middle font-medium text-gray-900">
-            Функциональные и качественные характеристики товара (неизменяемые
-            показатели)
-          </th>
+          {showCharacteristics && (
+            <th className="border border-black px-2 py-1 align-middle font-medium text-gray-900">
+              Функциональные и качественные характеристики товара (неизменяемые
+              показатели)
+            </th>
+          )}
           <th className="border border-black px-2 py-1 align-middle font-medium text-gray-900">
             Кол-во
           </th>
@@ -48,9 +51,11 @@ const TemplateTable = ({ products, ref }: Props) => {
               {index + 1}
             </td>
             <td className="border border-black px-2 py-1">{product.name}</td>
-            <td className="border border-black px-2 py-1">
-              {product.characteristics}
-            </td>
+            {showCharacteristics && (
+              <td className="border border-black px-2 py-1">
+                {product.characteristics}
+              </td>
+            )}
             <td className="border border-black px-2 py-1 text-center">
               {product.quantity}
             </td>

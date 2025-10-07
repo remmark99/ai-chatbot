@@ -11,27 +11,50 @@ export const ProductSchema = z.object({
   price: z.number(),
 });
 
-export const PDFSchema = z.object({
-  templateName: z
-    .enum(["emonaev", "remmark", "sdk"])
-    .describe(
-      "Организация, от лица которой мы выставляем коммерческое предложение",
-    ),
-  filename: z.string(),
-  products: z.array(ProductSchema),
-  receiver: z.string().describe("Кому выписывается КП"),
-  deliveryAddress: z.string().describe("Место поставки товара"),
-  customerRequestNumber: z
-    .string()
-    .describe("Номер запроса клиента, в ответ на ваш запрос №???"),
-  customerRequestDate: z.string().describe("Дата запроса клиента"),
-  offerValidityPeriod: z
-    .string()
-    .describe("Срок действия предложения, до какой даты действительно"),
-  deliveryPeriod: z.string().describe("Дата поставки товара, до"),
-  offerDate: z.string().describe("Дата КП"),
-  offerNumber: z.string().describe("Номер КП"),
-});
+export const PDFSchema = z
+  .object({
+    templateName: z
+      .enum(["emonaev", "remmark", "sdk"])
+      .describe(
+        "Организация, от лица которой мы выставляем коммерческое предложение",
+      ),
+    filename: z.string(),
+    products: z.array(ProductSchema),
+    receiver: z.string().describe("Кому выписывается КП"),
+    deliveryAddress: z.string().describe("Место поставки товара"),
+    customerRequestNumber: z
+      .string()
+      .describe(
+        "Номер запроса клиента, в ответ на ваш запрос №???, не должно быть символа №",
+      ),
+    customerRequestDate: z.string().describe("Дата запроса клиента"),
+    offerValidityPeriod: z
+      .string()
+      .describe("Срок действия предложения, до какой даты действительно"),
+    deliveryPeriod: z.string().describe("Дата поставки товара, до"),
+    offerDate: z.string().describe("Дата КП"),
+    offerNumber: z.string().describe("Номер КП"),
+    showCharacteristics: z
+      .boolean()
+      .describe(
+        "Если в источнике нет характеристик товаров, не отображаем колонку характеристики в таблице",
+      ),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.showCharacteristics) {
+      const invalid = data.products.find(
+        (product) => product.characteristics !== undefined,
+      );
+      if (invalid) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "If showCharacteristics is false, none of the products can have characteristics set.",
+          path: ["products"],
+        });
+      }
+    }
+  });
 
 export const showPdf = tool({
   description:
@@ -49,6 +72,7 @@ export const showPdf = tool({
     deliveryPeriod,
     offerDate,
     offerNumber,
+    showCharacteristics,
   }) => {
     return {
       filename,
@@ -62,6 +86,7 @@ export const showPdf = tool({
       deliveryPeriod,
       offerDate,
       offerNumber,
+      showCharacteristics,
     };
   },
 });

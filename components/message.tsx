@@ -1,5 +1,4 @@
 "use client";
-import cx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useState } from "react";
 import type { Vote } from "@/lib/db/schema";
@@ -212,7 +211,14 @@ const PurePreviewMessage = ({
                       )}
                       {state === "output-available" && (
                         <ToolOutput
-                          output={<CreatePDFToolResult content={part.output} />}
+                          output={
+                            <CreatePDFToolResult
+                              showCharacteristics={
+                                part.output.showCharacteristics
+                              }
+                              content={part.output}
+                            />
+                          }
                           errorText={undefined}
                         />
                       )}

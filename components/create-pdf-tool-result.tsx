@@ -18,6 +18,7 @@ import { TemplateProps } from "@/lib/types";
 
 interface Props {
   content: z.infer<typeof PDFSchema>;
+  showCharacteristics: boolean;
 }
 
 const templateMap: Record<
@@ -34,7 +35,7 @@ const templateMap: Record<
 
 applyPlugin(jsPDF);
 
-const CreatePDFToolResult = ({ content }: Props) => {
+const CreatePDFToolResult = ({ content, showCharacteristics }: Props) => {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const tableRef = useRef<HTMLTableElement | null>(null);
@@ -116,7 +117,11 @@ const CreatePDFToolResult = ({ content }: Props) => {
         sum={sum}
         content={content}
       >
-        <TemplateTable products={content.products} ref={tableRef} />
+        <TemplateTable
+          showCharacteristics={showCharacteristics}
+          products={content.products}
+          ref={tableRef}
+        />
       </Template>
     </>
   );
