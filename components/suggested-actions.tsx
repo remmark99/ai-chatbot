@@ -19,10 +19,20 @@ function PureSuggestedActions({
   selectedVisibilityType,
 }: SuggestedActionsProps) {
   const suggestedActions = [
-    "Сколько стоит заправка картриджа в Сургуте",
-    "Помоги мне составить КП",
-    "Что ты умеешь делать?",
-    "What is the weather in San Francisco?",
+    {
+      text: "Помоги мне составить КП",
+      value:
+        "Сделай 2 КП от СДК и Емонаева с увеличением цен на 5 и 7 % ориентируясь на вложенное КП",
+    },
+    {
+      text: "Сколько стоит заправка картриджа в Сургуте",
+      value: "Сколько стоит заправка картриджа в Сургуте",
+    },
+    { text: "Что ты умеешь делать?", value: "Что ты умеешь делать?" },
+    {
+      text: "Какая погода в Сургуте?",
+      value: "Какая погода в Сургуте?",
+    },
   ];
 
   return (
@@ -36,20 +46,20 @@ function PureSuggestedActions({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ delay: 0.05 * index }}
-          key={suggestedAction}
+          key={suggestedAction.text}
         >
           <Suggestion
-            suggestion={suggestedAction}
-            onClick={(suggestion) => {
+            suggestion={suggestedAction.text}
+            onClick={() => {
               window.history.replaceState({}, "", `/chat/${chatId}`);
               sendMessage({
                 role: "user",
-                parts: [{ type: "text", text: suggestion }],
+                parts: [{ type: "text", text: suggestedAction.value }],
               });
             }}
             className="text-left w-full h-auto whitespace-normal p-3"
           >
-            {suggestedAction}
+            {suggestedAction.text}
           </Suggestion>
         </motion.div>
       ))}
