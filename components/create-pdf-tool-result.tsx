@@ -118,6 +118,7 @@ const CreatePDFToolResult = ({ content, showCharacteristics }: Props) => {
         content={content}
       >
         <TemplateTable
+          showVAT={content.templateName !== "emonaev"}
           showCharacteristics={showCharacteristics}
           products={content.products}
           ref={tableRef}

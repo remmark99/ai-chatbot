@@ -7,9 +7,15 @@ interface Props {
   products: z.infer<typeof ProductSchema>[];
   ref: ForwardedRef<HTMLTableElement>;
   showCharacteristics: boolean;
+  showVAT: boolean;
 }
 
-const TemplateTable = ({ showCharacteristics, products, ref }: Props) => {
+const TemplateTable = ({
+  showVAT,
+  showCharacteristics,
+  products,
+  ref,
+}: Props) => {
   return (
     <table
       className="min-w-full border border-black bg-white mt-3"
@@ -37,10 +43,10 @@ const TemplateTable = ({ showCharacteristics, products, ref }: Props) => {
             Ед.
           </th>
           <th className="border border-black px-2 py-1 font-medium text-gray-900">
-            Цена с НДС (руб.)
+            Цена {showVAT && "с НДС"} (руб.)
           </th>
           <th className="border border-black px-2 py-1 font-medium text-gray-900">
-            Сумма с НДС (руб.)
+            Сумма {showVAT && "с НДС"} (руб.)
           </th>
         </tr>
       </thead>

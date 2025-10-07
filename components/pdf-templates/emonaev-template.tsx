@@ -9,9 +9,6 @@ const EmonaevPDFTemplate = ({
   children,
   content,
 }: TemplateProps) => {
-  // НДС ~ 20% «внутри» цены: НДС = sum - sum/1.2
-  const nds = sum > 0 ? sum - sum / 1.2 : 0;
-
   return (
     <div
       style={{ fontFamily: "Roboto" }}
@@ -60,10 +57,6 @@ const EmonaevPDFTemplate = ({
       <div className="flex justify-end mt-3">
         <div className="grid grid-cols-2 gap-x-6">
           <div className="text-right font-medium">Итого:</div>
-          <div className="text-right">{formatNumber(sum)}</div>
-          <div className="text-right font-medium">НДС:</div>
-          <div className="text-right">{formatNumber(nds)}</div>
-          <div className="text-right font-medium">Всего к оплате:</div>
           <div className="text-right">{formatNumber(sum)}</div>
         </div>
       </div>

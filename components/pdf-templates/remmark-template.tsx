@@ -9,6 +9,9 @@ const RemmarkPDFTemplate = ({
   children,
   content,
 }: TemplateProps) => {
+  // НДС ~ 20% «внутри» цены: НДС = sum - sum/1.2
+  const nds = sum > 0 ? sum - sum / 1.2 : 0;
+
   return (
     <div
       style={{ fontFamily: "Roboto" }}
@@ -74,7 +77,7 @@ const RemmarkPDFTemplate = ({
             <div className="text-right font-medium">Итого:</div>
             <div className="text-right">{formatNumber(sum)}</div>
             <div className="text-right font-medium">НДС:</div>
-            <div className="text-right">7 550,00</div>
+            <div className="text-right">{formatNumber(nds)}</div>
             <div className="text-right font-medium">Всего к оплате:</div>
             <div className="text-right">{formatNumber(sum)}</div>
           </div>
