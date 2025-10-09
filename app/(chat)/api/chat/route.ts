@@ -167,14 +167,14 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    // const httpTransport = new StreamableHTTPClientTransport(
-    //   new URL("http://146.103.97.69:8765/mcp"),
-    // );
-    // const httpClient = await experimental_createMCPClient({
-    //   transport: httpTransport,
-    // });
+    const httpTransport = new StreamableHTTPClientTransport(
+      new URL("http://146.103.97.69:8765/mcp"),
+    );
+    const httpClient = await experimental_createMCPClient({
+      transport: httpTransport,
+    });
 
-    // const mcpTools = await httpClient.tools();
+    const mcpTools = await httpClient.tools();
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
@@ -186,7 +186,7 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : ["web_search", "showPdf"],
+              : ["web_search", "showPdf", " buildTotals", "mutateAllPrices"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             web_search: openai.tools.webSearch({
@@ -200,11 +200,16 @@ export async function POST(request: Request) {
               },
             }),
             showPdf,
-            // createPdf: tool({
-            //   description: mcpTools["createPdf"].description,
-            //   inputSchema: mcpTools["createPdf"].inputSchema,
-            //   execute: mcpTools["createPdf"].execute,
-            // }),
+            buildTotals: tool({
+              description: mcpTools["buildTotals"].description,
+              inputSchema: mcpTools["buildTotals"].inputSchema,
+              execute: mcpTools["buildTotals"].execute,
+            }),
+            mutateAllPrices: tool({
+              description: mcpTools["mutateAllPrices"].description,
+              inputSchema: mcpTools["mutateAllPrices"].inputSchema,
+              execute: mcpTools["mutateAllPrices"].execute,
+            }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
