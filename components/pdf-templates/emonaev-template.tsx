@@ -64,7 +64,7 @@ const EmonaevPDFTemplate = ({
       {/* Bottom text (условия) */}
       <div
         ref={footerRef}
-        className="tracking-wide text-xs p-10 w-[850px]"
+        className="tracking-wide text-xs p-10 w-[850px] z-10"
         style={{ fontFamily: "Roboto" }}
       >
         <div className="mt-3">
@@ -92,9 +92,16 @@ const EmonaevPDFTemplate = ({
         </div>
 
         {/* Signature */}
-        <div className="mt-8 flex gap-4 relative">
+        <div className="mt-12 flex gap-4 relative">
           <span>ИП Емонаев В.С.</span>
-          <div className="w-32 border-t border-black absolute top-4 left-[100px]" />
+          <img
+            alt="Подпись Емонаев"
+            src="/images/emonaev-seal.png"
+            className="absolute -top-8 left-[120px] z-0"
+            width={100}
+            height={100}
+          />
+          <div className="w-32 border-t border-black absolute top-5 left-[100px]" />
           <span className="text-right relative top-4">
             действует без печати
           </span>
