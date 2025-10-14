@@ -26,6 +26,7 @@ import { createDocument } from "@/lib/ai/tools/create-document";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { getWeather } from "@/lib/ai/tools/get-weather";
+import { generateOfferNumber } from "@/lib/ai/tools/generate-offer-number";
 import { showPdf } from "@/lib/ai/tools/create-pdf";
 import { isProductionEnvironment } from "@/lib/constants";
 import { myProvider } from "@/lib/ai/providers";
@@ -186,7 +187,7 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : ["web_search", "showPdf"],
+              : ["web_search", "showPdf", "generateOfferNumber"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             web_search: openai.tools.webSearch({
@@ -200,6 +201,7 @@ export async function POST(request: Request) {
               },
             }),
             showPdf,
+            generateOfferNumber,
             // createPdf: tool({
             //   description: mcpTools["createPdf"].description,
             //   inputSchema: mcpTools["createPdf"].inputSchema,

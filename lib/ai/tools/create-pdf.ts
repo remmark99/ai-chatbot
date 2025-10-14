@@ -33,7 +33,11 @@ export const PDFSchema = z
       .describe("Срок действия предложения, до какой даты действительно"),
     deliveryPeriod: z.string().describe("Дата поставки товара, до"),
     offerDate: z.string().describe("Дата КП"),
-    offerNumber: z.string().describe("Номер КП"),
+    offerNumber: z
+      .string()
+      .describe(
+        "Номер КП, генерируй через generateOfferNumber если пользователь не передаст его сам вне файла",
+      ),
     showCharacteristics: z
       .boolean()
       .describe(
