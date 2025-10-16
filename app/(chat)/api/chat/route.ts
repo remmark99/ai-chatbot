@@ -45,6 +45,7 @@ import type { VisibilityType } from "@/components/visibility-selector";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { openai } from "@ai-sdk/openai";
 import mammoth from "mammoth";
+import { read, utils } from "xlsx";
 
 export const maxDuration = 60;
 
@@ -296,7 +297,9 @@ export async function extractFileData(
       part.type === "file" &&
       (part.mediaType === "text/plain" ||
         part.mediaType ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        part.mediaType ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     ) {
       if (part.mediaType === "text/plain") {
         const file = await fetch(part.url);
@@ -313,6 +316,28 @@ export async function extractFileData(
 
         const rawText = await mammoth.extractRawText({ buffer });
         fileContent = rawText.value;
+      }
+
+      if (
+        part.mediaType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ) {
+        const file = await fetch(part.url);
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Прочитать Excel из буфера
+        const workbook = read(buffer, { type: "buffer" });
+
+        // Получить имя первого листа
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+
+        // Конвертировать таблицу в JSON
+        const jsonData = utils.sheet_to_json(worksheet);
+
+        // Можно сохранить как текст для консистентности
+        fileContent = JSON.stringify(jsonData, null, 2);
       }
     } else {
       filteredParts.push(part);

@@ -13,6 +13,7 @@ const filePartSchema = z.object({
     "application/pdf",
     "text/plain",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ]),
   name: z.string().min(1).max(100),
   url: z.string().url(),

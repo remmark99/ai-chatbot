@@ -20,9 +20,10 @@ const FileSchema = z.object({
           "application/pdf",
           "text/plain",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ].includes(file.type),
       {
-        message: "File type should be JPEG, PNG, PDF, TXT or DOCX",
+        message: "Данный тип файлов не поддерживается",
       },
     ),
 });
