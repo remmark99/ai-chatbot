@@ -15,7 +15,7 @@ const RemmarkPDFTemplate = ({
   return (
     <div
       style={{ fontFamily: "Roboto" }}
-      className="w-[850px] text-xs bg-white tracking-wide relative"
+      className="w-[850px] text-xs bg-white tracking-wide relative text-black"
     >
       <div
         ref={headerRef}
