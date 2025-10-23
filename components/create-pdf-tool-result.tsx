@@ -19,6 +19,7 @@ import { TemplateProps } from "@/lib/types";
 interface Props {
   content: z.infer<typeof PDFSchema>;
   showCharacteristics: boolean;
+  showInResponseTo: boolean;
 }
 
 const templateMap: Record<
@@ -35,7 +36,11 @@ const templateMap: Record<
 
 applyPlugin(jsPDF);
 
-const CreatePDFToolResult = ({ content, showCharacteristics }: Props) => {
+const CreatePDFToolResult = ({
+  content,
+  showCharacteristics,
+  showInResponseTo,
+}: Props) => {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const tableRef = useRef<HTMLTableElement | null>(null);
@@ -80,7 +85,6 @@ const CreatePDFToolResult = ({ content, showCharacteristics }: Props) => {
             showHead: "firstPage",
           });
 
-          console.log(doc.lastAutoTable);
           doc.html(footerRef.current!, {
             y:
               5 +
@@ -116,6 +120,7 @@ const CreatePDFToolResult = ({ content, showCharacteristics }: Props) => {
         footerRef={footerRef}
         sum={sum}
         content={content}
+        showInResponseTo={showInResponseTo}
       >
         <TemplateTable
           showVAT={content.templateName !== "emonaev"}

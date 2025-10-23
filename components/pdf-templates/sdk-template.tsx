@@ -8,9 +8,9 @@ const SdkPDFTemplate = ({
   footerRef,
   children,
   content,
+  showInResponseTo,
 }: TemplateProps) => {
   const nds = sum > 0 ? sum - sum / 1.2 : 0;
-  console.log(content);
 
   return (
     <div
@@ -96,10 +96,12 @@ const SdkPDFTemplate = ({
         </div>
 
         {/* Conditions block */}
-        <div className="mt-3">
-          В ответ на Ваш запрос от {content.customerRequestDate}г. №{" "}
-          {content.customerRequestNumber}
-        </div>
+        {showInResponseTo && (
+          <div className="mt-3">
+            В ответ на Ваш запрос от {content.customerRequestDate}г. №{" "}
+            {content.customerRequestNumber}
+          </div>
+        )}
         <div>
           Срок действия предложения: до {content.offerValidityPeriod}. 2. Срок
           поставки товара: в срок до {content.deliveryPeriod} (включительно). 3.

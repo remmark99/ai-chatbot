@@ -216,6 +216,7 @@ const PurePreviewMessage = ({
                               showCharacteristics={
                                 part.output.showCharacteristics
                               }
+                              showInResponseTo={part.output.showInResponseTo}
                               content={part.output}
                             />
                           }

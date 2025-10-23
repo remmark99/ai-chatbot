@@ -43,6 +43,11 @@ export const PDFSchema = z
       .describe(
         "Если в источнике нет характеристик товаров, не отображаем колонку характеристики в таблице",
       ),
+    showInResponseTo: z
+      .boolean()
+      .describe(
+        'Если пользователь просит не отображать "В ответ на" это должно быть false',
+      ),
   })
   .superRefine((data, ctx) => {
     if (!data.showCharacteristics) {
@@ -77,6 +82,7 @@ export const showPdf = tool({
     offerDate,
     offerNumber,
     showCharacteristics,
+    showInResponseTo,
   }) => {
     return {
       filename,
@@ -91,6 +97,7 @@ export const showPdf = tool({
       offerDate,
       offerNumber,
       showCharacteristics,
+      showInResponseTo,
     };
   },
 });

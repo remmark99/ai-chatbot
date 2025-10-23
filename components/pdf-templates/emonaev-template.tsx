@@ -8,6 +8,7 @@ const EmonaevPDFTemplate = ({
   sum,
   children,
   content,
+  showInResponseTo,
 }: TemplateProps) => {
   return (
     <div
@@ -44,10 +45,12 @@ const EmonaevPDFTemplate = ({
         <p className="mt-4 text-center">Уважаемый Павел Михайлович!</p>
         */}
 
-        <div className="text-left mt-4">
-          В ответ на Ваш запрос от {content.customerRequestDate} №{" "}
-          {content.customerRequestNumber}.
-        </div>
+        {showInResponseTo && (
+          <div className="text-left mt-4">
+            В ответ на Ваш запрос от {content.customerRequestDate} №{" "}
+            {content.customerRequestNumber}.
+          </div>
+        )}
       </div>
 
       {/* Table */}

@@ -66,4 +66,5 @@ export interface TemplateProps {
   sum: number;
   children: React.ReactNode;
   content: z.infer<typeof PDFSchema>;
+  showInResponseTo: boolean;
 }

@@ -8,6 +8,7 @@ const RemmarkPDFTemplate = ({
   sum,
   children,
   content,
+  showInResponseTo,
 }: TemplateProps) => {
   // НДС ~ 20% «внутри» цены: НДС = sum - sum/1.2
   const nds = sum > 0 ? sum - sum / 1.2 : 0;
@@ -88,8 +89,12 @@ const RemmarkPDFTemplate = ({
           <p>
             Цены действительны на спецификацию в полном объеме. В случае ее
             изменения предложение может быть пересмотрено.
-            <br />В ответ на Ваш запрос от {content.customerRequestDate}г. №{" "}
-            {content.customerRequestNumber}
+            {showInResponseTo && (
+              <>
+                <br />В ответ на Ваш запрос от {content.customerRequestDate}г. №{" "}
+                {content.customerRequestNumber}
+              </>
+            )}
           </p>
           <ol className="mt-3 ml-6 list-none">
             <li>
