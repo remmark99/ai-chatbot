@@ -79,6 +79,14 @@ const CreatePDFToolResult = ({
               textColor: [0, 0, 0],
               lineColor: [0, 0, 0],
             },
+            columnStyles: {
+              5: {
+                overflow: "visible",
+              },
+              6: {
+                overflow: "visible",
+              },
+            },
             headStyles: {
               lineWidth: 0.25,
             },
