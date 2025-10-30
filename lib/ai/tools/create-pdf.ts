@@ -48,6 +48,13 @@ export const PDFSchema = z
       .describe(
         'Если пользователь просит не отображать "В ответ на" это должно быть false',
       ),
+    itemsToShow: z
+      .array(z.boolean())
+      .length(5)
+      .describe(
+        "Список пунктов, которые надо отобразить. Если пользователь просит не отображать третий пункт, третий элемент должен быть false. Для остальных так же",
+      )
+      .default([true, true, true, true, true]),
   })
   .superRefine((data, ctx) => {
     if (!data.showCharacteristics) {
@@ -83,6 +90,7 @@ export const showPdf = tool({
     offerNumber,
     showCharacteristics,
     showInResponseTo,
+    itemsToShow,
   }) => {
     return {
       filename,
@@ -98,6 +106,7 @@ export const showPdf = tool({
       offerNumber,
       showCharacteristics,
       showInResponseTo,
+      itemsToShow,
     };
   },
 });
