@@ -39,6 +39,11 @@ import type { Attachment, ChatMessage } from "@/lib/types";
 import { chatModels } from "@/lib/ai/models";
 import { saveChatModelAsCookie } from "@/app/(chat)/actions";
 import { startTransition } from "react";
+import {
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+} from "./ui/shadcn-io/dropzone";
 
 function PureMultimodalInput({
   chatId,
@@ -183,10 +188,8 @@ function PureMultimodalInput({
     }
   };
 
-  const handleFileChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(event.target.files || []);
-
+  const uploadFiles = useCallback(
+    async (files: File[]) => {
       setUploadQueue(files.map((file) => file.name));
 
       try {
@@ -208,6 +211,12 @@ function PureMultimodalInput({
     },
     [setAttachments],
   );
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+
+    await uploadFiles(files);
+  };
 
   const { isAtBottom, scrollToBottom } = useScrollToBottom();
 
@@ -264,82 +273,100 @@ function PureMultimodalInput({
         tabIndex={-1}
       />
 
-      <PromptInput
-        className="bg-gray-50 rounded-3xl border border-gray-300 shadow-none transition-all duration-200 dark:bg-sidebar dark:border-sidebar-border hover:ring-1 hover:ring-primary/30 focus-within:ring-1 focus-within:ring-primary/50"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (status !== "ready") {
-            toast.error("Please wait for the model to finish its response!");
-          } else {
-            submitForm();
-          }
-        }}
+      <Dropzone
+        maxFiles={5}
+        noClick
+        className="p-px border-0 bg-transparent hover:bg-transparent ring-0 focus-visible:ring-0 rounded-3xl hover:cursor-default"
+        onDrop={(files) => uploadFiles(files)}
       >
-        {(attachments.length > 0 || uploadQueue.length > 0) && (
-          <div
-            data-testid="attachments-preview"
-            className="flex overflow-x-scroll flex-row gap-2 items-end px-3 py-2"
+        <DropzoneEmptyState>
+          <PromptInput
+            className="bg-gray-50 rounded-3xl border border-gray-300 shadow-none transition-all duration-200 dark:bg-sidebar dark:border-sidebar-border hover:ring-1 hover:ring-primary/30 focus-within:ring-1 focus-within:ring-primary/50"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (status !== "ready") {
+                toast.error(
+                  "Please wait for the model to finish its response!",
+                );
+              } else {
+                submitForm();
+              }
+            }}
           >
-            {attachments.map((attachment) => (
-              <PreviewAttachment
-                key={attachment.url}
-                attachment={attachment}
-                onRemove={() => {
-                  setAttachments((currentAttachments) =>
-                    currentAttachments.filter((a) => a.url !== attachment.url),
-                  );
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                  }
-                }}
-              />
-            ))}
+            {(attachments.length > 0 || uploadQueue.length > 0) && (
+              <div
+                data-testid="attachments-preview"
+                className="flex overflow-x-scroll flex-row gap-2 items-end px-3 py-2"
+              >
+                {attachments.map((attachment) => (
+                  <PreviewAttachment
+                    key={attachment.url}
+                    attachment={attachment}
+                    onRemove={() => {
+                      setAttachments((currentAttachments) =>
+                        currentAttachments.filter(
+                          (a) => a.url !== attachment.url,
+                        ),
+                      );
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                  />
+                ))}
 
-            {uploadQueue.map((filename) => (
-              <PreviewAttachment
-                key={filename}
-                attachment={{
-                  url: "",
-                  name: filename,
-                  contentType: "",
-                }}
-                isUploading={true}
-              />
-            ))}
-          </div>
-        )}
+                {uploadQueue.map((filename) => (
+                  <PreviewAttachment
+                    key={filename}
+                    attachment={{
+                      url: "",
+                      name: filename,
+                      contentType: "",
+                    }}
+                    isUploading={true}
+                  />
+                ))}
+              </div>
+            )}
 
-        <PromptInputTextarea
-          data-testid="multimodal-input"
-          ref={textareaRef}
-          placeholder="Отправьте сообщение..."
-          value={input}
-          onChange={handleInput}
-          minHeight={72}
-          maxHeight={200}
-          disableAutoResize={true}
-          className="text-base resize-none p-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-transparent !border-0 !border-none outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-          rows={1}
-          autoFocus
-        />
-        <PromptInputToolbar className="px-4 py-2 !border-t-0 !border-top-0 shadow-none dark:!border-transparent dark:border-0">
-          <PromptInputTools className="gap-2">
-            <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-            <ModelSelectorCompact selectedModelId={selectedModelId} />
-          </PromptInputTools>
-          {status === "submitted" ? (
-            <StopButton stop={stop} setMessages={setMessages} />
-          ) : (
-            <PromptInputSubmit
-              status={status}
-              disabled={!input.trim() || uploadQueue.length > 0}
-              className="p-3 text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80 dark:text-gray-300"
-            >
-              <ArrowUpIcon size={20} />
-            </PromptInputSubmit>
-          )}
-        </PromptInputToolbar>
-      </PromptInput>
+            <PromptInputTextarea
+              data-testid="multimodal-input"
+              ref={textareaRef}
+              placeholder="Отправьте сообщение..."
+              value={input}
+              onChange={handleInput}
+              minHeight={72}
+              maxHeight={200}
+              disableAutoResize={true}
+              className="text-base resize-none p-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-transparent !border-0 !border-none outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              rows={1}
+              autoFocus
+            />
+
+            <PromptInputToolbar className="px-4 py-2 !border-t-0 !border-top-0 shadow-none dark:!border-transparent dark:border-0">
+              <PromptInputTools className="gap-2">
+                <AttachmentsButton
+                  fileInputRef={fileInputRef}
+                  status={status}
+                />
+                <ModelSelectorCompact selectedModelId={selectedModelId} />
+              </PromptInputTools>
+              {status === "submitted" ? (
+                <StopButton stop={stop} setMessages={setMessages} />
+              ) : (
+                <PromptInputSubmit
+                  status={status}
+                  disabled={!input.trim() || uploadQueue.length > 0}
+                  className="p-3 text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80 dark:text-gray-300"
+                >
+                  <ArrowUpIcon size={20} />
+                </PromptInputSubmit>
+              )}
+            </PromptInputToolbar>
+          </PromptInput>
+        </DropzoneEmptyState>
+        <DropzoneContent>Hello world</DropzoneContent>
+      </Dropzone>
     </div>
   );
 }
