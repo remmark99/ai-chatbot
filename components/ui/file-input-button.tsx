@@ -25,6 +25,7 @@ export default function FileInputButton() {
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"
+        name="file"
       />
       <Button type="button" onClick={handleButtonClick}>Загрузить файл <Paperclip className="-rotate-45" /></Button>
     </>

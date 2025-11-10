@@ -61,15 +61,13 @@ export default function PricesPage() {
 
   const [state, formAction] = useActionState<any, FormData>(
     async (a, formData) => {
+      console.log(formData);
       setIsLoading(true);
 
-      await fetch(
-        "https://n8n-chatbot.remmark.ru/webhook/064f811a-6339-40a4-94a6-f5c8379ec398",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      await fetch("http://146.103.103.157:8010/process-xlsx", {
+        method: "POST",
+        body: formData,
+      });
 
       setIsLoading(false);
 
@@ -114,7 +112,7 @@ export default function PricesPage() {
           className="space-y-2 bg-gray-100 border rounded-2xl p-8 flex justify-between"
         >
           <div className="w-2/5 flex flex-col gap-2">
-            <Input placeholder="Название..." name="name" />
+            <Input placeholder="Название..." name="user_id" />
             <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Список сайтов" />
@@ -131,6 +129,7 @@ export default function PricesPage() {
           <div className="self-end">
             <FileInputButton />
           </div>
+          <Button>Готово</Button>
         </Form>
       )}
       {state.showOTP && (
