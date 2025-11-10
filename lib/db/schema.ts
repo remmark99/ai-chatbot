@@ -173,4 +173,13 @@ export const offerNumber = pgTable("Offer_Number", {
   number: integer("number").notNull(),
 });
 
+export const priceRequests = pgTable("Price_Requests", {
+  id: uuid("id").notNull().defaultRandom(),
+  status: text("status").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => user.id),
+});
+
 export type Stream = InferSelectModel<typeof stream>;

@@ -29,6 +29,7 @@ import {
   type Chat,
   stream,
   offerNumber,
+  priceRequests,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -579,10 +580,22 @@ export async function incrementOfferNumber({
 
     return result?.number ?? null;
   } catch (error) {
-    console.log(error, "LOOK AT ME");
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to increment offer number",
+    );
+  }
+}
+
+export async function getPriceRequests() {
+  try {
+    const result = await db.select().from(priceRequests);
+
+    return result;
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get price requests",
     );
   }
 }

@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import DatePicker from "@/components/ui/date-picker";
 import FileInputButton from "@/components/ui/file-input-button";
 import { Input } from "@/components/ui/input";
@@ -14,18 +13,23 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchPriceRequests } from "@/lib/queries";
+import { useQuery } from "@tanstack/react-query";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Plus } from "lucide-react";
 import Form from "next/form";
 import { useActionState, useEffect, useState } from "react";
 
 export default function PricesPage() {
+  const { data: priceRequests } = useQuery({
+    queryKey: ["priceRequests"],
+    queryFn: fetchPriceRequests,
+  });
+
   const [otp, setOtp] = useState("");
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
     useState(false);
