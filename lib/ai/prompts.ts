@@ -69,16 +69,18 @@ About the origin of user's request:
 export const systemPrompt = ({
   selectedChatModel,
   requestHints,
+  isCleanChat,
 }: {
   selectedChatModel: string;
   requestHints: RequestHints;
+  isCleanChat: boolean;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
   if (selectedChatModel === "chat-model-reasoning") {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${isCleanChat ? "" : regularPrompt}\n\n${requestPrompt}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+    return `${isCleanChat ? "" : regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
   }
 };
 
