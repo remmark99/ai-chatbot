@@ -260,6 +260,7 @@ function PureMultimodalInput({
         )}
       </AnimatePresence>
 
+      {/**
       {messages.length === 0 &&
         attachments.length === 0 &&
         uploadQueue.length === 0 && (
@@ -269,6 +270,7 @@ function PureMultimodalInput({
             selectedVisibilityType={selectedVisibilityType}
           />
         )}
+      **/}
 
       <input
         type="file"
