@@ -148,6 +148,7 @@ export function Chat({
         />
 
         <Messages
+          isCleanChat={isCleanChat}
           chatId={id}
           status={status}
           votes={votes}

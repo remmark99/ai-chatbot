@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 
-export const Greeting = () => {
+interface Props {
+  isCleanChat: boolean;
+}
+
+export const Greeting = ({ isCleanChat }: Props) => {
   return (
     <div
       key="overview"
@@ -22,7 +26,9 @@ export const Greeting = () => {
         transition={{ delay: 0.6 }}
         className="text-2xl text-zinc-500"
       >
-        Как я могу помочь сегодня?
+        {isCleanChat
+          ? "Как я могу помочь сегодня?"
+          : "Прикрепи коммерческое предложение и я сделаю из него еще два. Напиши, если необходимо будет скорректировать данные."}
       </motion.div>
     </div>
   );
