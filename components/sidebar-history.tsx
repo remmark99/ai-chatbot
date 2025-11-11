@@ -79,21 +79,29 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
 export function getChatHistoryPaginationKey(
   pageIndex: number,
   previousPageData: ChatHistory,
+  isCleanChat: boolean,
 ) {
   if (previousPageData && previousPageData.hasMore === false) {
     return null;
   }
 
-  if (pageIndex === 0) return `/api/history?limit=${PAGE_SIZE}`;
+  if (pageIndex === 0)
+    return `/api/history?limit=${PAGE_SIZE}&is_clean_chat=${isCleanChat}`;
 
   const firstChatFromPage = previousPageData.chats.at(-1);
 
   if (!firstChatFromPage) return null;
 
-  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
+  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}&is_clean_chat=${isCleanChat}`;
 }
 
-export function SidebarHistory({ user }: { user: User | undefined }) {
+export function SidebarHistory({
+  user,
+  isCleanChat,
+}: {
+  user: User | undefined;
+  isCleanChat: boolean;
+}) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
 
@@ -103,9 +111,14 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     isValidating,
     isLoading,
     mutate,
-  } = useSWRInfinite<ChatHistory>(getChatHistoryPaginationKey, fetcher, {
-    fallbackData: [],
-  });
+  } = useSWRInfinite<ChatHistory>(
+    (pageIndex, previousPageData) =>
+      getChatHistoryPaginationKey(pageIndex, previousPageData, isCleanChat),
+    fetcher,
+    {
+      fallbackData: [],
+    },
+  );
 
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);

@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { DefaultChatTransport } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { ChatHeader } from '@/components/chat-header';
-import type { Vote } from '@/lib/db/schema';
-import { fetcher, fetchWithErrorHandlers, generateUUID, cn } from '@/lib/utils';
-import { Artifact } from './artifact';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import type { VisibilityType } from './visibility-selector';
-import { useArtifactSelector } from '@/hooks/use-artifact';
-import { unstable_serialize } from 'swr/infinite';
-import { getChatHistoryPaginationKey } from './sidebar-history';
-import { toast } from './toast';
-import type { Session } from 'next-auth';
-import { useSearchParams } from 'next/navigation';
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { useAutoResume } from '@/hooks/use-auto-resume';
-import { ChatSDKError } from '@/lib/errors';
-import type { Attachment, ChatMessage } from '@/lib/types';
-import { useDataStream } from './data-stream-provider';
+import { DefaultChatTransport } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { useEffect, useState } from "react";
+import useSWR, { useSWRConfig } from "swr";
+import { ChatHeader } from "@/components/chat-header";
+import type { Vote } from "@/lib/db/schema";
+import { fetcher, fetchWithErrorHandlers, generateUUID, cn } from "@/lib/utils";
+import { Artifact } from "./artifact";
+import { MultimodalInput } from "./multimodal-input";
+import { Messages } from "./messages";
+import type { VisibilityType } from "./visibility-selector";
+import { useArtifactSelector } from "@/hooks/use-artifact";
+import { unstable_serialize } from "swr/infinite";
+import { getChatHistoryPaginationKey } from "./sidebar-history";
+import { toast } from "./toast";
+import type { Session } from "next-auth";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useChatVisibility } from "@/hooks/use-chat-visibility";
+import { useAutoResume } from "@/hooks/use-auto-resume";
+import { ChatSDKError } from "@/lib/errors";
+import type { Attachment, ChatMessage } from "@/lib/types";
+import { useDataStream } from "./data-stream-provider";
 
 export function Chat({
   id,
@@ -40,6 +40,7 @@ export function Chat({
   session: Session;
   autoResume: boolean;
 }) {
+  const pathname = usePathname();
   const { visibilityType } = useChatVisibility({
     chatId: id,
     initialVisibilityType,
@@ -48,7 +49,8 @@ export function Chat({
   const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
 
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState<string>("");
+  const isCleanChat = /.*clean-chat.*/.test(pathname);
 
   const {
     messages,
@@ -64,7 +66,7 @@ export function Chat({
     experimental_throttle: 100,
     generateId: generateUUID,
     transport: new DefaultChatTransport({
-      api: '/api/chat',
+      api: "/api/chat",
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest({ messages, id, body }) {
         return {
@@ -73,6 +75,7 @@ export function Chat({
             message: messages.at(-1),
             selectedChatModel: initialChatModel,
             selectedVisibilityType: visibilityType,
+            isCleanChat,
             ...body,
           },
         };
@@ -82,12 +85,16 @@ export function Chat({
       setDataStream((ds) => (ds ? [...ds, dataPart] : []));
     },
     onFinish: () => {
-      mutate(unstable_serialize(getChatHistoryPaginationKey));
+      mutate(
+        unstable_serialize((pageIndex, previousPageData) =>
+          getChatHistoryPaginationKey(pageIndex, previousPageData, isCleanChat),
+        ),
+      );
     },
     onError: (error) => {
       if (error instanceof ChatSDKError) {
         toast({
-          type: 'error',
+          type: "error",
           description: error.message,
         });
       }
@@ -95,19 +102,23 @@ export function Chat({
   });
 
   const searchParams = useSearchParams();
-  const query = searchParams.get('query');
+  const query = searchParams.get("query");
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
       sendMessage({
-        role: 'user' as const,
-        parts: [{ type: 'text', text: query }],
+        role: "user" as const,
+        parts: [{ type: "text", text: query }],
       });
 
       setHasAppendedQuery(true);
-      window.history.replaceState({}, '', `/chat/${id}`);
+      window.history.replaceState(
+        {},
+        "",
+        `/${isCleanChat ? "clean-chat" : "chat"}/${id}`,
+      );
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 

@@ -20,6 +20,14 @@ export default function NavBar() {
           Чат-бот
         </Button>
       </Link>
+      <Link href="/clean-chat">
+        <Button
+          className="md:h-[34px]"
+          variant={currentPath === "/clean-chat" ? "default" : "outline"}
+        >
+          Чистый чат-бот
+        </Button>
+      </Link>
       <Link href="/prices">
         <Button
           className="md:h-[34px]"

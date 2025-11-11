@@ -76,7 +76,6 @@ export async function createGuestUser() {
       email: user.email,
     });
   } catch (error) {
-    console.log(error);
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to create guest user",
@@ -89,11 +88,13 @@ export async function saveChat({
   userId,
   title,
   visibility,
+  isCleanChat,
 }: {
   id: string;
   userId: string;
   title: string;
   visibility: VisibilityType;
+  isCleanChat: boolean;
 }) {
   try {
     return await db.insert(chat).values({
@@ -102,6 +103,7 @@ export async function saveChat({
       userId,
       title,
       visibility,
+      isCleanChat,
     });
   } catch (error) {
     throw new ChatSDKError("bad_request:database", "Failed to save chat");
@@ -132,11 +134,13 @@ export async function getChatsByUserId({
   limit,
   startingAfter,
   endingBefore,
+  isCleanChat,
 }: {
   id: string;
   limit: number;
   startingAfter: string | null;
   endingBefore: string | null;
+  isCleanChat: boolean;
 }) {
   try {
     const extendedLimit = limit + 1;
@@ -147,8 +151,12 @@ export async function getChatsByUserId({
         .from(chat)
         .where(
           whereCondition
-            ? and(whereCondition, eq(chat.userId, id))
-            : eq(chat.userId, id),
+            ? and(
+                whereCondition,
+                eq(chat.userId, id),
+                eq(chat.isCleanChat, isCleanChat),
+              )
+            : and(eq(chat.userId, id), eq(chat.isCleanChat, isCleanChat)),
         )
         .orderBy(desc(chat.createdAt))
         .limit(extendedLimit);
@@ -159,7 +167,9 @@ export async function getChatsByUserId({
       const [selectedChat] = await db
         .select()
         .from(chat)
-        .where(eq(chat.id, startingAfter))
+        .where(
+          and(eq(chat.id, startingAfter), eq(chat.isCleanChat, isCleanChat)),
+        )
         .limit(1);
 
       if (!selectedChat) {
@@ -174,7 +184,9 @@ export async function getChatsByUserId({
       const [selectedChat] = await db
         .select()
         .from(chat)
-        .where(eq(chat.id, endingBefore))
+        .where(
+          and(eq(chat.id, endingBefore), eq(chat.isCleanChat, isCleanChat)),
+        )
         .limit(1);
 
       if (!selectedChat) {
@@ -500,7 +512,6 @@ export async function getMessageCountByUserId({
 
     return stats?.count ?? 0;
   } catch (error) {
-    console.log(error);
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to get message count by user id",

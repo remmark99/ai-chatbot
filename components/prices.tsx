@@ -26,13 +26,11 @@ interface Props {
 }
 
 export function Prices({ session }: Props) {
-  console.log(session);
   const { data: priceRequests } = useQuery({
     queryKey: ["priceRequests"],
     queryFn: fetchPriceRequests,
     refetchInterval: 5000,
   });
-  console.log(priceRequests);
 
   const [otp, setOtp] = useState("");
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
@@ -66,7 +64,6 @@ export function Prices({ session }: Props) {
   const [state, formAction] = useActionState<any, FormData>(
     async (a, formData) => {
       formData.set("user_id", session.user.id);
-      console.log(formData);
       setIsLoading(true);
 
       await fetch("http://146.103.103.157:8010/process-xlsx", {

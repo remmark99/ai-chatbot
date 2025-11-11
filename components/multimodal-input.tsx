@@ -44,6 +44,7 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "./ui/shadcn-io/dropzone";
+import { usePathname } from "next/navigation";
 
 function PureMultimodalInput({
   chatId,
@@ -74,8 +75,10 @@ function PureMultimodalInput({
   selectedVisibilityType: VisibilityType;
   selectedModelId: string;
 }) {
+  const pathname = usePathname();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
+  const isCleanChat = /.*clean-chat.*/.test(pathname);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -124,7 +127,11 @@ function PureMultimodalInput({
   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
   const submitForm = useCallback(() => {
-    window.history.replaceState({}, "", `/chat/${chatId}`);
+    window.history.replaceState(
+      {},
+      "",
+      `/${isCleanChat ? "clean-chat" : "chat"}/${chatId}`,
+    );
 
     sendMessage({
       role: "user",

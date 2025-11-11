@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "next-auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { PlusIcon } from "@/components/icons";
 import { SidebarHistory } from "@/components/sidebar-history";
@@ -19,6 +19,8 @@ import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
+  const pathname = usePathname();
+  const isCleanChat = /.*clean-chat.*/.test(pathname);
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
 
@@ -28,7 +30,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         <SidebarMenu>
           <div className="flex flex-row justify-between items-center">
             <Link
-              href="/"
+              href={"/"}
               onClick={() => {
                 setOpenMobile(false);
               }}
@@ -46,7 +48,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   className="p-2 h-fit"
                   onClick={() => {
                     setOpenMobile(false);
-                    router.push("/");
+                    router.push(isCleanChat ? "/clean-chat" : "/");
                     router.refresh();
                   }}
                 >
@@ -59,7 +61,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarHistory user={user} />
+        <SidebarHistory user={user} isCleanChat={isCleanChat} />
       </SidebarContent>
       <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>

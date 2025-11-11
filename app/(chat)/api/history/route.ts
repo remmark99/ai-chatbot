@@ -1,26 +1,27 @@
-import { auth } from '@/app/(auth)/auth';
-import type { NextRequest } from 'next/server';
-import { getChatsByUserId } from '@/lib/db/queries';
-import { ChatSDKError } from '@/lib/errors';
+import { auth } from "@/app/(auth)/auth";
+import type { NextRequest } from "next/server";
+import { getChatsByUserId } from "@/lib/db/queries";
+import { ChatSDKError } from "@/lib/errors";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
-  const limit = Number.parseInt(searchParams.get('limit') || '10');
-  const startingAfter = searchParams.get('starting_after');
-  const endingBefore = searchParams.get('ending_before');
+  const limit = Number.parseInt(searchParams.get("limit") || "10");
+  const startingAfter = searchParams.get("starting_after");
+  const endingBefore = searchParams.get("ending_before");
+  const isCleanChat = searchParams.get("is_clean_chat");
 
   if (startingAfter && endingBefore) {
     return new ChatSDKError(
-      'bad_request:api',
-      'Only one of starting_after or ending_before can be provided.',
+      "bad_request:api",
+      "Only one of starting_after or ending_before can be provided.",
     ).toResponse();
   }
 
   const session = await auth();
 
   if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
+    return new ChatSDKError("unauthorized:chat").toResponse();
   }
 
   const chats = await getChatsByUserId({
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     limit,
     startingAfter,
     endingBefore,
+    isCleanChat: isCleanChat === "true" ? true : false,
   });
 
   return Response.json(chats);
