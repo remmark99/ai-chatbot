@@ -587,9 +587,12 @@ export async function incrementOfferNumber({
   }
 }
 
-export async function getPriceRequests() {
+export async function getPriceRequests(user_id) {
   try {
-    const result = await db.select().from(priceRequests);
+    const result = await db
+      .select()
+      .from(priceRequests)
+      .where(eq(user_id, "user_id"));
 
     return result;
   } catch (error) {
