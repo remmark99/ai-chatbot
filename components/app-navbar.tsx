@@ -12,20 +12,20 @@ export default function NavBar() {
       aria-label="Main navigation"
       className="z-10 fixed top-1.5 left-1/2 -translate-x-1/2 flex gap-2"
     >
-      <Link href="/">
-        <Button
-          className="md:h-[34px]"
-          variant={currentPath === "/" ? "default" : "outline"}
-        >
-          Чат-бот
-        </Button>
-      </Link>
       <Link href="/clean-chat">
         <Button
           className="md:h-[34px]"
           variant={currentPath === "/clean-chat" ? "default" : "outline"}
         >
-          Чистый чат-бот
+          Чат-бот
+        </Button>
+      </Link>
+      <Link href="/">
+        <Button
+          className="md:h-[34px]"
+          variant={currentPath === "/" ? "default" : "outline"}
+        >
+          КП
         </Button>
       </Link>
       <Link href="/prices">
