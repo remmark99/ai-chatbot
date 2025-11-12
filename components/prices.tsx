@@ -21,6 +21,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Badge } from "./ui/badge";
 import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   session: Session;
@@ -43,17 +44,20 @@ const formatDateTime = (date: Date) => {
 };
 
 export function Prices({ session }: Props) {
+  const supabase = createClient();
   const { data: priceRequests } = useQuery({
     queryKey: ["priceRequests"],
     queryFn: fetchPriceRequests,
     refetchInterval: 5000,
   });
+  console.log(priceRequests);
 
   const [otp, setOtp] = useState("");
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
     useState(false);
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [websiteFilter, setWebsiteFilter] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -93,6 +97,41 @@ export function Prices({ session }: Props) {
     },
   );
 
+  const downloadFile = async (fileUrl: string) => {
+    fetch(
+      "http://supabasekong-boo0w0g0k40k8kwsw4g0sc0o.217.114.187.98.sslip.io/storage/v1/object/price-results/" +
+        fileUrl,
+      {
+        headers: {
+          Authorization:
+            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc2MDkzNTMyMCwiZXhwIjo0OTE2NjA4OTIwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.LWWpCAMuV_jmGChKjELEcFIC3xkZ3fAifzugHFc7PxY",
+        },
+      },
+    );
+    const { data, error } = await supabase.storage
+      .from("price-results")
+      .download(fileUrl);
+    if (error) {
+      console.error("Download error:", error);
+      return;
+    }
+    // Create a URL for the downloaded Blob object
+    const url = window.URL.createObjectURL(data);
+
+    // Create a temporary anchor element to trigger the download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileUrl; // use the fileUrl or parse from it to get a filename
+
+    // Append anchor to body, trigger click and remove it
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // Revoke the object URL after download to free memory
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     if (otp.length === 4) {
       fetch(
@@ -113,12 +152,30 @@ export function Prices({ session }: Props) {
     }
   }, [otp]);
 
+  const getWebsiteLabel = (value: string) => {
+    console.log(value);
+    return (
+      WEBSITE_OPTIONS.find((option) => option.value === value)?.label || value
+    );
+  };
+
   const toggleProcurementCreationForm = () =>
     setIsProcurementCreationFormOpen((old) => !old);
 
-  const filteredPriceRequests = priceRequests?.filter((request) =>
-    request.name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredPriceRequests = priceRequests
+    ?.filter((request) =>
+      request.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .filter((request) => {
+      if (websiteFilter.length === 0) return true;
+      return request.websites
+        ?.split(",")
+        .some((website) => websiteFilter.includes(website));
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-8 space-y-6">
@@ -256,19 +313,62 @@ export function Prices({ session }: Props) {
         </div>
         <div className="flex items-center gap-2">
           <DatePicker />
-          <Select>
+          <Select
+            value=""
+            onValueChange={(value) => {
+              if (value === "all") {
+                setWebsiteFilter([]);
+              } else if (!websiteFilter.includes(value)) {
+                setWebsiteFilter([...websiteFilter, value]);
+              }
+            }}
+          >
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Фильтр по сайту" />
+              <SelectValue
+                placeholder={
+                  websiteFilter.length > 0
+                    ? `Выбрано: ${websiteFilter.length}`
+                    : "Фильтр по сайту"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Все сайты</SelectItem>
               {WEBSITE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  disabled={websiteFilter.includes(option.value)}
+                >
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {websiteFilter.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {websiteFilter.map((website) => (
+                <Badge
+                  key={website}
+                  variant="secondary"
+                  className="px-3 py-1 text-sm"
+                >
+                  {getWebsiteLabel(website)}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setWebsiteFilter(
+                        websiteFilter.filter((w) => w !== website),
+                      )
+                    }
+                    className="ml-2 hover:text-destructive"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -300,13 +400,29 @@ export function Prices({ session }: Props) {
                       <span>
                         Создан: {formatDateTime(priceRequest.createdAt)}
                       </span>
-                      {priceRequest.websites && (
-                        <span>Сайты: {priceRequest.websites.join(", ")}</span>
-                      )}
                     </div>
+                    {priceRequest.websites &&
+                      priceRequest.websites.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {priceRequest.websites && JSON.parse(priceRequest.websites).map((website) => (
+                            <Badge
+                              key={website}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {getWebsiteLabel(website)}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                   </div>
-                  <Button variant="outline" size="sm">
-                    Подробнее
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!priceRequest.fileUrl}
+                    onClick={() => downloadFile(priceRequest.fileUrl)}
+                  >
+                    Скачать файл
                   </Button>
                 </div>
               </CardContent>

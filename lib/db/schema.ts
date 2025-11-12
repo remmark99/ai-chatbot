@@ -195,6 +195,7 @@ export const baseRequests = pgTable("base_requests", {
     .references(() => user.id),
   name: text("name_req"),
   fileUrl: text("unique_url"),
+  websites: text("websites"),
 });
 
 export type Stream = InferSelectModel<typeof stream>;
