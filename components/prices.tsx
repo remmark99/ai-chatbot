@@ -21,18 +21,15 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Badge } from "./ui/badge";
 import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
-import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   session: Session;
 }
 
 const WEBSITE_OPTIONS = [
-  { value: "ozon", label: "Ozon" },
-  { value: "wildberries", label: "Wildberries" },
-  { value: "yandex", label: "Yandex Market" },
-  { value: "avito", label: "Avito" },
-  { value: "aliexpress", label: "AliExpress" },
+  { value: "ipro", label: "ЭТМ iPRO" },
+  { value: "rs", label: "Русский Свет" },
+  { value: "vse", label: "ВсеИнструменты" },
 ];
 
 const formatDateTime = (date: Date) => {
@@ -46,7 +43,6 @@ const formatDateTime = (date: Date) => {
 };
 
 export function Prices({ session }: Props) {
-  const supabase = createClient();
   const { data: priceRequests } = useQuery({
     queryKey: ["priceRequests"],
     queryFn: fetchPriceRequests,
@@ -57,48 +53,48 @@ export function Prices({ session }: Props) {
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
     useState(false);
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Check if OTP is complete (assuming length 4 or change to your OTP length)
-  const isCompleted = otp.length === 4;
+  const [isLoading, setIsLoading] = useState(false);
 
-  const downloadFile = async (fileUrl: string) => {
-    fetch(
-      "http://supabasekong-boo0w0g0k40k8kwsw4g0sc0o.217.114.187.98.sslip.io/storage/v1/object/price-results/" +
-        fileUrl,
-      {
-        headers: {
-          Authorization:
-            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc2MDkzNTMyMCwiZXhwIjo0OTE2NjA4OTIwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.LWWpCAMuV_jmGChKjELEcFIC3xkZ3fAifzugHFc7PxY",
-        },
-      },
-    );
-    const { data, error } = await supabase.storage
-      .from("price-results")
-      .download(fileUrl);
-    if (error) {
-      console.error("Download error:", error);
-      return;
-    }
-    // Create a URL for the downloaded Blob object
-    const url = window.URL.createObjectURL(data);
+  const [state, formAction] = useActionState<any, FormData>(
+    async (a, formData) => {
+      formData.set("user_id", session.user.id);
+      formData.set("websites", JSON.stringify(selectedWebsites));
+      setIsLoading(true);
 
-    // Create a temporary anchor element to trigger the download
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileUrl; // use the fileUrl or parse from it to get a filename
+      try {
+        const response = await fetch("/prices/api/process-xlsx", {
+          method: "POST",
+          body: formData,
+        });
 
-    // Append anchor to body, trigger click and remove it
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+        const data = await response.json();
 
-    // Revoke the object URL after download to free memory
-    window.URL.revokeObjectURL(url);
-  };
+        if (!response.ok) {
+          console.error("[v0] Failed to process XLSX:", data);
+          setIsLoading(false);
+          return { showOTP: false, error: data.error };
+        }
+
+        setIsLoading(false);
+        setIsProcurementCreationFormOpen(false);
+        setSelectedWebsites([]);
+
+        return { showOTP: true, data };
+      } catch (error) {
+        console.error("[v0] Error submitting form:", error);
+        setIsLoading(false);
+        return { showOTP: false, error: "Failed to submit request" };
+      }
+    },
+    {
+      showOTP: false,
+    },
+  );
 
   useEffect(() => {
-    if (isCompleted) {
-      // Fire web request here
+    if (otp.length === 4) {
       fetch(
         "https://n8n-chatbot.remmark.ru/webhook/63d43bec-7a17-4cac-a4f7-132685b0cd81",
         {
@@ -115,36 +111,17 @@ export function Prices({ session }: Props) {
           console.error("OTP verification error:", error);
         });
     }
-  }, [isCompleted, otp]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [state, formAction] = useActionState<any, FormData>(
-    async (a, formData) => {
-      formData.set("user_id", session.user.id);
-      formData.set("websites", JSON.stringify(selectedWebsites));
-      setIsLoading(true);
-
-      await fetch("http://146.103.103.157:8010/process-xlsx", {
-        method: "POST",
-        body: formData,
-      });
-
-      setIsLoading(false);
-      setIsProcurementCreationFormOpen(false);
-      setSelectedWebsites([]);
-
-      return { showOTP: true };
-    },
-    {
-      showOTP: false,
-    },
-  );
+  }, [otp]);
 
   const toggleProcurementCreationForm = () =>
     setIsProcurementCreationFormOpen((old) => !old);
 
+  const filteredPriceRequests = priceRequests?.filter((request) =>
+    request.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-20 space-y-6">
+    <div className="w-full max-w-7xl mx-auto px-6 py-8 space-y-6">
       {isProcurementCreationFormOpen && (
         <Card className="border-2">
           <CardContent className="pt-6">
@@ -270,7 +247,12 @@ export function Prices({ session }: Props) {
             <Plus className="mr-2 size-4" />
             Создать запрос
           </Button>
-          <Input placeholder="Поиск по названию..." className="w-64" />
+          <Input
+            placeholder="Поиск по названию..."
+            className="w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="flex items-center gap-2">
           <DatePicker />
@@ -291,8 +273,8 @@ export function Prices({ session }: Props) {
       </div>
 
       <div className="space-y-3">
-        {priceRequests && priceRequests.length > 0 ? (
-          priceRequests.map((priceRequest) => (
+        {filteredPriceRequests && filteredPriceRequests.length > 0 ? (
+          filteredPriceRequests.map((priceRequest) => (
             <Card
               key={priceRequest.id}
               className="hover:shadow-md transition-shadow"
@@ -318,20 +300,13 @@ export function Prices({ session }: Props) {
                       <span>
                         Создан: {formatDateTime(priceRequest.createdAt)}
                       </span>
-                      {/**
                       {priceRequest.websites && (
                         <span>Сайты: {priceRequest.websites.join(", ")}</span>
                       )}
-                      **/}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!priceRequest.fileUrl}
-                    onClick={() => downloadFile(priceRequest.fileUrl)}
-                  >
-                    Скачать файл
+                  <Button variant="outline" size="sm">
+                    Подробнее
                   </Button>
                 </div>
               </CardContent>
@@ -341,7 +316,9 @@ export function Prices({ session }: Props) {
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">
-                Нет активных запросов. Создайте новый запрос для начала работы.
+                {searchTerm
+                  ? "Ничего не найдено. Попробуйте изменить поисковый запрос."
+                  : "Нет активных запросов. Создайте новый запрос для начала работы."}
               </p>
             </CardContent>
           </Card>
