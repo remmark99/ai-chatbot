@@ -10,6 +10,7 @@ import {
   foreignKey,
   boolean,
   integer,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("User", {
@@ -181,6 +182,19 @@ export const priceRequests = pgTable("Price_Requests", {
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id),
+});
+
+export const baseRequests = pgTable("base_requests", {
+  id: integer("req_id").notNull(),
+  status: text("status").notNull(),
+  goodsAmount: integer("goods_amt"),
+  createdAt: timestamp("created_at").notNull(),
+  finished_at: timestamp("finished_at"),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => user.id),
+  name: text("name_req"),
+  fileUrl: text("unique_url"),
 });
 
 export type Stream = InferSelectModel<typeof stream>;

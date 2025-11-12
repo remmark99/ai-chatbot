@@ -30,6 +30,7 @@ import {
   stream,
   offerNumber,
   priceRequests,
+  baseRequests,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -602,8 +603,8 @@ export async function getPriceRequests(user_id) {
   try {
     const result = await db
       .select()
-      .from(priceRequests)
-      .where(eq(user_id, "user_id"));
+      .from(baseRequests)
+      .where(eq(user_id, baseRequests.userId));
 
     return result;
   } catch (error) {
