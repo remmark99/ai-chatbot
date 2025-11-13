@@ -98,25 +98,22 @@ export function Prices({ session }: Props) {
   );
 
   const downloadFile = async (fileUrl: string) => {
-    fetch(
-      "http://supabasekong-boo0w0g0k40k8kwsw4g0sc0o.217.114.187.98.sslip.io/storage/v1/object/price-results/" +
-        fileUrl,
-      {
-        headers: {
-          Authorization:
-            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc2MDkzNTMyMCwiZXhwIjo0OTE2NjA4OTIwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.LWWpCAMuV_jmGChKjELEcFIC3xkZ3fAifzugHFc7PxY",
-        },
+    const res = await fetch("/prices/api/download-file", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
-    const { data, error } = await supabase.storage
-      .from("price-results")
-      .download(fileUrl);
-    if (error) {
-      console.error("Download error:", error);
+      body: JSON.stringify({ fileUrl }),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      console.log(json?.error ?? "Download failed");
       return;
     }
-    // Create a URL for the downloaded Blob object
-    const url = window.URL.createObjectURL(data);
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
 
     // Create a temporary anchor element to trigger the download
     const a = document.createElement("a");
@@ -129,7 +126,7 @@ export function Prices({ session }: Props) {
     a.remove();
 
     // Revoke the object URL after download to free memory
-    window.URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
@@ -404,15 +401,16 @@ export function Prices({ session }: Props) {
                     {priceRequest.websites &&
                       priceRequest.websites.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {priceRequest.websites && JSON.parse(priceRequest.websites).map((website) => (
-                            <Badge
-                              key={website}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {getWebsiteLabel(website)}
-                            </Badge>
-                          ))}
+                          {priceRequest.websites &&
+                            JSON.parse(priceRequest.websites).map((website) => (
+                              <Badge
+                                key={website}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {getWebsiteLabel(website)}
+                              </Badge>
+                            ))}
                         </div>
                       )}
                   </div>
