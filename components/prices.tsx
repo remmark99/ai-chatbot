@@ -21,7 +21,6 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Badge } from "./ui/badge";
 import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
-import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   session: Session;
@@ -44,13 +43,11 @@ const formatDateTime = (date: Date) => {
 };
 
 export function Prices({ session }: Props) {
-  const supabase = createClient();
   const { data: priceRequests } = useQuery({
     queryKey: ["priceRequests"],
     queryFn: fetchPriceRequests,
     refetchInterval: 5000,
   });
-  console.log(priceRequests);
 
   const [otp, setOtp] = useState("");
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
