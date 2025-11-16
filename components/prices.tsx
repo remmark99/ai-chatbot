@@ -20,6 +20,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Badge } from "./ui/badge";
 import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
+import { toast } from "sonner";
 
 interface Props {
   session: Session;
@@ -88,8 +89,9 @@ export function Prices({ session }: Props) {
 
       setIsLoading(false);
       setIsProcurementCreationFormOpen(false);
+      toast.success("Заявка успешно создана!", { position: "bottom-center" });
       setSelectedWebsites([]);
-      setShowOTP(true); // display OTP entry
+      // setShowOTP(true); // display OTP entry
     } catch (error) {
       setFormError("Не удалось отправить запрос");
       setIsLoading(false);
