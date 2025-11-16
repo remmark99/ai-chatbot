@@ -71,7 +71,11 @@ export function Prices({ session }: Props) {
 
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
     useState(false);
-  const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
+  const [selectedWebsites, setSelectedWebsites] = useState<string[]>([
+    "ipro",
+    "rs",
+    "vse",
+  ]);
   const [searchTerm, setSearchTerm] = useState("");
   const [websiteFilter, setWebsiteFilter] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
