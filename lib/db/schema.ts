@@ -189,7 +189,7 @@ export const baseRequests = pgTable("base_requests", {
   status: text("status").notNull(),
   goodsAmount: integer("goods_amt"),
   createdAt: timestamp("created_at").notNull(),
-  finished_at: timestamp("finished_at"),
+  finishedAt: timestamp("finished_at"),
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id),

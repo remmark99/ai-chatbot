@@ -42,6 +42,23 @@ const formatDateTime = (date: Date) => {
   }).format(new Date(date));
 };
 
+const formatProcessingTime = (createdAt: Date, finishedAt: Date) => {
+  const diffMs = new Date(finishedAt).getTime() - new Date(createdAt).getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    const hours = diffHours % 24;
+    return `${diffDays} д. ${hours} ч.`;
+  } else if (diffHours > 0) {
+    const minutes = diffMinutes % 60;
+    return `${diffHours} ч. ${minutes} мин.`;
+  } else {
+    return `${diffMinutes} мин.`;
+  }
+};
+
 export function Prices({ session }: Props) {
   const { data: priceRequests } = useQuery({
     queryKey: ["priceRequests"],
@@ -391,6 +408,16 @@ export function Prices({ session }: Props) {
                       <span>
                         Создан: {formatDateTime(priceRequest.createdAt)}
                       </span>
+                      {priceRequest.status === "Готово!" &&
+                        priceRequest.finishedAt && (
+                          <span className="text-green-600 font-medium">
+                            Обработано за:{" "}
+                            {formatProcessingTime(
+                              priceRequest.createdAt,
+                              priceRequest.finishedAt,
+                            )}
+                          </span>
+                        )}
                     </div>
                     {priceRequest.websites &&
                       priceRequest.websites.length > 0 && (
