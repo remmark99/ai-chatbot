@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     // Forward the request to your server
-    const response = await fetch("http://146.103.103.157:8010/process-xlsx", {
+    const response = await fetch(process.env.PRICES_API_URL, {
       method: "POST",
       body: formData,
     });

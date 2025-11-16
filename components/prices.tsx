@@ -3,7 +3,7 @@
 import { fetchPriceRequests } from "@/lib/queries";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle, Plus, X } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import DatePicker from "./ui/date-picker";
@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import Form from "next/form";
 import FileInputButton from "./ui/file-input-button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -50,50 +49,54 @@ export function Prices({ session }: Props) {
   });
 
   const [otp, setOtp] = useState("");
+  const [showOTP, setShowOTP] = useState(false);
+
   const [isProcurementCreationFormOpen, setIsProcurementCreationFormOpen] =
     useState(false);
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [websiteFilter, setWebsiteFilter] = useState<string[]>([]);
-
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const [state, formAction] = useActionState<any, FormData>(
-    async (a, formData) => {
-      formData.set("user_id", session.user.id);
-      formData.set("websites", JSON.stringify(selectedWebsites));
-      setIsLoading(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-      try {
-        const response = await fetch("/prices/api/process-xlsx", {
-          method: "POST",
-          body: formData,
-        });
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setFormError(null);
+    setShowOTP(false);
 
-        const data = await response.json();
+    const formData = new FormData(event.currentTarget);
 
-        if (!response.ok) {
-          console.error("[v0] Failed to process XLSX:", data);
-          setIsLoading(false);
-          return { showOTP: false, error: data.error };
-        }
+    formData.set("user_id", session.user.id);
+    formData.set("websites", JSON.stringify(selectedWebsites));
 
+    try {
+      const response = await fetch("/prices/api/process-xlsx", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFormError(data.error || "Ошибка отправки формы");
         setIsLoading(false);
-        setIsProcurementCreationFormOpen(false);
-        setSelectedWebsites([]);
-
-        return { showOTP: true, data };
-      } catch (error) {
-        console.error("[v0] Error submitting form:", error);
-        setIsLoading(false);
-        return { showOTP: false, error: "Failed to submit request" };
+        return;
       }
-    },
-    {
-      showOTP: false,
-    },
-  );
 
+      setIsLoading(false);
+      setIsProcurementCreationFormOpen(false);
+      setSelectedWebsites([]);
+      setShowOTP(true); // display OTP entry
+    } catch (error) {
+      setFormError("Не удалось отправить запрос");
+      setIsLoading(false);
+    }
+  };
+
+  // downloadFile remains the same as before
   const downloadFile = async (fileUrl: string) => {
     const res = await fetch("/prices/api/download-file", {
       method: "POST",
@@ -112,17 +115,12 @@ export function Prices({ session }: Props) {
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
 
-    // Create a temporary anchor element to trigger the download
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileUrl; // use the fileUrl or parse from it to get a filename
-
-    // Append anchor to body, trigger click and remove it
+    a.download = fileUrl;
     document.body.appendChild(a);
     a.click();
     a.remove();
-
-    // Revoke the object URL after download to free memory
     URL.revokeObjectURL(url);
   };
 
@@ -146,12 +144,8 @@ export function Prices({ session }: Props) {
     }
   }, [otp]);
 
-  const getWebsiteLabel = (value: string) => {
-    console.log(value);
-    return (
-      WEBSITE_OPTIONS.find((option) => option.value === value)?.label || value
-    );
-  };
+  const getWebsiteLabel = (value: string) =>
+    WEBSITE_OPTIONS.find((option) => option.value === value)?.label || value;
 
   const toggleProcurementCreationForm = () =>
     setIsProcurementCreationFormOpen((old) => !old);
@@ -162,9 +156,9 @@ export function Prices({ session }: Props) {
     )
     .filter((request) => {
       if (websiteFilter.length === 0) return true;
-      return request.websites
-        ?.split(",")
-        .some((website) => websiteFilter.includes(website));
+      return (request.websites ? JSON.parse(request.websites) : []).some(
+        (website) => websiteFilter.includes(website),
+      );
     })
     .sort(
       (a, b) =>
@@ -176,7 +170,7 @@ export function Prices({ session }: Props) {
       {isProcurementCreationFormOpen && (
         <Card className="border-2">
           <CardContent className="pt-6">
-            <Form action={formAction} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-4">
                   <Input
@@ -185,7 +179,6 @@ export function Prices({ session }: Props) {
                     className="text-base"
                     required
                   />
-
                   <div className="space-y-2">
                     <Select
                       value=""
@@ -219,10 +212,7 @@ export function Prices({ session }: Props) {
                             variant="secondary"
                             className="px-3 py-1 text-sm"
                           >
-                            {
-                              WEBSITE_OPTIONS.find((w) => w.value === website)
-                                ?.label
-                            }
+                            {getWebsiteLabel(website)}
                             <button
                               type="button"
                               onClick={() =>
@@ -240,9 +230,8 @@ export function Prices({ session }: Props) {
                     )}
                   </div>
                 </div>
-
                 <div className="flex gap-2">
-                  <FileInputButton />
+                  <FileInputButton ref={fileInputRef} />
                   <Button
                     type="submit"
                     disabled={isLoading || selectedWebsites.length === 0}
@@ -256,17 +245,21 @@ export function Prices({ session }: Props) {
                     type="button"
                     variant="outline"
                     onClick={toggleProcurementCreationForm}
+                    disabled={isLoading}
                   >
                     Отмена
                   </Button>
                 </div>
               </div>
-            </Form>
+              {formError && (
+                <div className="text-destructive text-sm">{formError}</div>
+              )}
+            </form>
           </CardContent>
         </Card>
       )}
 
-      {state.showOTP && (
+      {showOTP && (
         <Card>
           <CardContent className="pt-6 flex flex-col items-center gap-4">
             <p className="text-sm text-muted-foreground">
@@ -382,9 +375,11 @@ export function Prices({ session }: Props) {
                       </h3>
                       <Badge
                         variant={
-                          priceRequest.status === "completed"
+                          priceRequest.status === "Готово!"
                             ? "default"
-                            : "secondary"
+                            : priceRequest.status === "Ошибка"
+                              ? "destructive"
+                              : "secondary"
                         }
                       >
                         {priceRequest.status}
