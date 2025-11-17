@@ -21,6 +21,7 @@ import { Badge } from "./ui/badge";
 import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
 import { toast } from "sonner";
+import { Skeleton } from "./ui/skeleton";
 
 interface Props {
   session: Session;
@@ -60,7 +61,7 @@ const formatProcessingTime = (createdAt: Date, finishedAt: Date) => {
 };
 
 export function Prices({ session }: Props) {
-  const { data: priceRequests } = useQuery({
+  const { data: priceRequests, isLoading: isLoadingRequests } = useQuery({
     queryKey: ["priceRequests"],
     queryFn: fetchPriceRequests,
     refetchInterval: 5000,
@@ -173,20 +174,21 @@ export function Prices({ session }: Props) {
   const toggleProcurementCreationForm = () =>
     setIsProcurementCreationFormOpen((old) => !old);
 
-  const filteredPriceRequests = priceRequests
-    ?.filter((request) =>
-      request.name?.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .filter((request) => {
-      if (websiteFilter.length === 0) return true;
-      return (request.websites ? JSON.parse(request.websites) : []).some(
-        (website) => websiteFilter.includes(website),
-      );
-    })
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+  const filteredPriceRequests =
+    priceRequests
+      ?.filter((request) =>
+        request.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .filter((request) => {
+        if (websiteFilter.length === 0) return true;
+        return (request.websites ? JSON.parse(request.websites) : []).some(
+          (website) => websiteFilter.includes(website),
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      ) ?? [];
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-8 space-y-6">
@@ -383,7 +385,30 @@ export function Prices({ session }: Props) {
       </div>
 
       <div className="space-y-3">
-        {filteredPriceRequests && filteredPriceRequests.length > 0 ? (
+        {isLoadingRequests ? (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                      <Skeleton className="h-4 w-64" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-9 w-24" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : filteredPriceRequests.length > 0 ? (
           filteredPriceRequests.map((priceRequest) => (
             <Card
               key={priceRequest.id}
