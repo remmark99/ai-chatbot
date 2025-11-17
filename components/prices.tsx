@@ -191,7 +191,7 @@ export function Prices({ session }: Props) {
       ) ?? [];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-8 space-y-6">
+    <div className="w-full max-w-7xl mx-auto px-6 py-8 pt-14 space-y-6">
       {isProcurementCreationFormOpen && (
         <Card className="border-2">
           <CardContent className="pt-6">
