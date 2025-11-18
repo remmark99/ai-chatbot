@@ -20,10 +20,10 @@ export default function NavBar() {
           Чат-бот
         </Button>
       </Link>
-      <Link href="/">
+      <Link href="/chat">
         <Button
           className="md:h-[34px]"
-          variant={currentPath === "/" ? "default" : "outline"}
+          variant={currentPath === "/chat" ? "default" : "outline"}
         >
           КП
         </Button>

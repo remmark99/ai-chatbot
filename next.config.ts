@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  redirects: async () => {
+    return [
+      {
+        source: "/",
+        destination: "/clean-chat",
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     ppr: true,
   },
