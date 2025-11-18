@@ -27,11 +27,13 @@ import { memo } from "react";
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
 
 const PureChatItem = ({
+  isCleanChat,
   chat,
   isActive,
   onDelete,
   setOpenMobile,
 }: {
+  isCleanChat: boolean;
   chat: Chat;
   isActive: boolean;
   onDelete: (chatId: string) => void;
@@ -45,7 +47,10 @@ const PureChatItem = ({
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive}>
-        <Link href={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
+        <Link
+          href={`/${isCleanChat ? "clean-" : ""}chat/${chat.id}`}
+          onClick={() => setOpenMobile(false)}
+        >
           <span>{chat.title}</span>
         </Link>
       </SidebarMenuButton>

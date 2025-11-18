@@ -15,7 +15,7 @@ export default function NavBar() {
       <Link href="/clean-chat">
         <Button
           className="md:h-[34px]"
-          variant={currentPath === "/clean-chat" ? "default" : "outline"}
+          variant={/.*\/clean-chat.*/.test(currentPath) ? "default" : "outline"}
         >
           Чат-бот
         </Button>
@@ -23,7 +23,7 @@ export default function NavBar() {
       <Link href="/chat">
         <Button
           className="md:h-[34px]"
-          variant={currentPath === "/chat" ? "default" : "outline"}
+          variant={/.*\/chat.*/.test(currentPath) ? "default" : "outline"}
         >
           КП
         </Button>

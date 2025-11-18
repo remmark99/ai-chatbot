@@ -236,6 +236,7 @@ export function SidebarHistory({
                         </div>
                         {groupedChats.today.map((chat) => (
                           <ChatItem
+                            isCleanChat={isCleanChat}
                             key={chat.id}
                             chat={chat}
                             isActive={chat.id === id}
