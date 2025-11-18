@@ -148,6 +148,13 @@ export function Prices({ session }: Props) {
     URL.revokeObjectURL(url);
   };
 
+  const deleteRequest = async (requestId: number) => {
+    // TODO: delete file, notify user, immediately update requests
+    const res = await fetch(`/prices/api?id=${requestId}`, {
+      method: "DELETE",
+    });
+  };
+
   useEffect(() => {
     if (otp.length === 4) {
       fetch(
@@ -464,14 +471,27 @@ export function Prices({ session }: Props) {
                         </div>
                       )}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!priceRequest.fileUrl}
-                    onClick={() => downloadFile(priceRequest.fileUrl)}
-                  >
-                    Скачать файл
-                  </Button>
+                  <div className="space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!priceRequest.fileUrl}
+                      onClick={() => downloadFile(priceRequest.fileUrl)}
+                    >
+                      Скачать файл
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={
+                        priceRequest.status !== "Готово!" &&
+                        priceRequest.status !== "Ошибка"
+                      }
+                      onClick={() => deleteRequest(priceRequest.id)}
+                    >
+                      Удалить
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
