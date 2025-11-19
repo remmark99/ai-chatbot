@@ -149,10 +149,15 @@ export function Prices({ session }: Props) {
   };
 
   const deleteRequest = async (requestId: number) => {
-    // TODO: delete file, notify user, immediately update requests
+    // TODO: immediately update requests
     const res = await fetch(`/prices/api?id=${requestId}`, {
       method: "DELETE",
     });
+
+    if (res.ok)
+      toast.success("Запрос был успешно удален!", {
+        position: "bottom-center",
+      });
   };
 
   useEffect(() => {
