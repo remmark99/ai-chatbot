@@ -617,7 +617,10 @@ export async function getPriceRequests(user_id) {
 
 export async function deletePriceRequestById({ id }: { id: number }) {
   try {
-    const result = await db.delete(baseRequests).where(eq(id, baseRequests.id));
+    const result = await db
+      .delete(baseRequests)
+      .returning()
+      .where(eq(id, baseRequests.id));
 
     return result;
   } catch (error) {

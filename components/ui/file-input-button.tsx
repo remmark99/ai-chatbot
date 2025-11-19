@@ -16,7 +16,6 @@ export default function FileInputButton() {
     const files = event.target.files
     if (files && files.length > 0) {
       setSelectedFile(files[0])
-      console.log("[v0] Selected file:", files[0].name)
     }
   }
 

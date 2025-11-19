@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 export default async function PricesPage() {
   const session = await auth();
 
-  console.log(session);
   if (!session || session.user.type === "guest") {
     redirect("/login");
   }
