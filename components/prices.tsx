@@ -477,25 +477,25 @@ export function Prices({ session }: Props) {
                       )}
                   </div>
                   <div className="space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!priceRequest.fileUrl}
-                      onClick={() => downloadFile(priceRequest.fileUrl)}
-                    >
-                      Скачать файл
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={
-                        priceRequest.status !== "Готово!" &&
-                        priceRequest.status !== "Ошибка"
-                      }
-                      onClick={() => deleteRequest(priceRequest.id)}
-                    >
-                      Удалить
-                    </Button>
+                    {priceRequest.fileUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadFile(priceRequest.fileUrl!)}
+                      >
+                        Скачать файл
+                      </Button>
+                    )}
+                    {(priceRequest.status === "Готово!" ||
+                      priceRequest.status === "Ошибка") && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteRequest(priceRequest.id)}
+                      >
+                        Удалить
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
