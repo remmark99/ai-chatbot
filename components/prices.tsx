@@ -22,6 +22,17 @@ import type { Session } from "next-auth";
 import { Card, CardContent } from "./ui/card";
 import { toast } from "sonner";
 import { Skeleton } from "./ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 interface Props {
   session: Session;
@@ -81,6 +92,20 @@ export function Prices({ session }: Props) {
   const [websiteFilter, setWebsiteFilter] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const handleOpenDelete = (id: number) => {
+    setDeleteId(id);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    await deleteRequest(deleteId);
+    setIsDeleteOpen(false);
+    setDeleteId(null);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -491,7 +516,7 @@ export function Prices({ session }: Props) {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => deleteRequest(priceRequest.id)}
+                        onClick={() => handleOpenDelete(priceRequest.id)}
                       >
                         Удалить
                       </Button>
@@ -513,6 +538,26 @@ export function Prices({ session }: Props) {
           </Card>
         )}
       </div>
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Это действие нельзя отменить. Запрос и связанные данные будут
+              удалены навсегда.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDelete}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
