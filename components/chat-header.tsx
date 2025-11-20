@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useWindowSize } from "usehooks-ts";
 
 import { SidebarToggle } from "@/components/sidebar-toggle";
@@ -26,6 +26,8 @@ function PureChatHeader({
 }) {
   const router = useRouter();
   const { open } = useSidebar();
+  const pathname = usePathname();
+  const isCleanChat = /.*clean-chat.*/.test(pathname);
 
   const { width: windowWidth } = useWindowSize();
 
@@ -40,7 +42,7 @@ function PureChatHeader({
               variant="outline"
               className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
               onClick={() => {
-                router.push("/");
+                router.push(isCleanChat ? "/clean-chat" : "/chat");
                 router.refresh();
               }}
             >

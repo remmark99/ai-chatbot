@@ -48,7 +48,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   className="p-2 h-fit"
                   onClick={() => {
                     setOpenMobile(false);
-                    router.push(isCleanChat ? "/clean-chat" : "/");
+                    router.push(isCleanChat ? "/clean-chat" : "/chat");
                     router.refresh();
                   }}
                 >
