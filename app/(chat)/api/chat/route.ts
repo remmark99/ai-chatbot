@@ -179,6 +179,7 @@ export async function POST(request: Request) {
       execute: ({ writer: dataStream }) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
+          toolChoice: isCleanChat ? "none" : "auto",
           system: systemPrompt({
             isCleanChat,
             selectedChatModel,
