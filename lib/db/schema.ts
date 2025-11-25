@@ -184,7 +184,7 @@ export const priceRequests = pgTable("Price_Requests", {
     .references(() => user.id),
 });
 
-export const baseRequests = pgTable("base_requests", {
+export const baseRequests = pgTable("base_requests_tmp", {
   id: integer("req_id").notNull(),
   status: text("status").notNull(),
   goodsAmount: integer("goods_amt"),
