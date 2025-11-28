@@ -68,10 +68,16 @@ const CreatePDFToolResult = ({
     await new Promise<void>((resolve) => {
       doc.html(headerRef.current!, {
         callback: function (doc) {
+          // Dynamically determine header height
+          const headerRect = headerRef.current?.getBoundingClientRect();
+          const headerHeightPx = headerRect ? headerRect.height : tableOffset;
+          // jsPDF uses pt; convert px to pt (1pt ≈ 1.333px)
+          const startY = headerHeightPx ? headerHeightPx / 1.333 : tableOffset;
+
           doc.autoTable({
             theme: "grid",
             html: tableRef.current!,
-            startY: tableOffset,
+            startY: startY * 0.33, // use dynamic value
             styles: {
               font: "Roboto",
               fontStyle: "normal",
