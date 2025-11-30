@@ -45,10 +45,16 @@ export default function Settings({ session }: Props) {
 
     setRsLoading(true);
     try {
-      const response = await fetch(
-        `http://146.103.103.157:8001/user-data/rs?user_id=${userId}&rs_login=${encodeURIComponent(rsLogin)}&rs_pass=${encodeURIComponent(rsPass)}`,
-        { method: "POST" },
-      );
+      const response = await fetch("/settings/api/user-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          store: "rs",
+          user_id: userId,
+          login: rsLogin,
+          pass: rsPass,
+        }),
+      });
 
       if (response.ok) {
         toast.success("RS Store credentials saved successfully");
@@ -70,10 +76,16 @@ export default function Settings({ session }: Props) {
 
     setIproLoading(true);
     try {
-      const response = await fetch(
-        `http://146.103.103.157:8001/user-data/ipro?user_id=${userId}&ipro_login=${encodeURIComponent(iproLogin)}&ipro_pass=${encodeURIComponent(iproPass)}`,
-        { method: "POST" },
-      );
+      const response = await fetch("/settings/api/user-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          store: "ipro",
+          user_id: userId,
+          login: iproLogin,
+          pass: iproPass,
+        }),
+      });
 
       if (response.ok) {
         toast.success("iPro Store credentials saved successfully");
@@ -95,10 +107,16 @@ export default function Settings({ session }: Props) {
 
     setVseLoading(true);
     try {
-      const response = await fetch(
-        `http://146.103.103.157:8001/user-data/vse-creds?user_id=${userId}&vse_login=${encodeURIComponent(vseLogin)}&vse_pass=${encodeURIComponent(vsePass)}`,
-        { method: "POST" },
-      );
+      const response = await fetch("/settings/api/user-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          store: "vse",
+          user_id: userId,
+          login: vseLogin,
+          pass: vsePass,
+        }),
+      });
 
       if (response.ok) {
         toast.success("VSE Store phone number saved successfully");
@@ -117,10 +135,11 @@ export default function Settings({ session }: Props) {
       <div className="mx-auto max-w-4xl p-6 space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-balance">
-            Store Credentials
+            Авторизационные данные
           </h1>
           <p className="text-muted-foreground text-pretty">
-            Manage authentication credentials for your connected stores
+            Управляйте учётными данными аутентификации для подключённых
+            магазинов
           </p>
         </div>
 
@@ -147,7 +166,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="rs-login"
                     type="text"
-                    placeholder="Enter RS login"
+                    placeholder="Введите логин"
                     value={rsLogin}
                     onChange={(e) => setRsLogin(e.target.value)}
                   />
@@ -157,7 +176,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="rs-pass"
                     type="password"
-                    placeholder="Enter RS password"
+                    placeholder="Введите пароль"
                     value={rsPass}
                     onChange={(e) => setRsPass(e.target.value)}
                   />
@@ -196,7 +215,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="ipro-login"
                     type="text"
-                    placeholder="Enter iPro login"
+                    placeholder="Введите логин"
                     value={iproLogin}
                     onChange={(e) => setIproLogin(e.target.value)}
                   />
@@ -206,7 +225,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="ipro-pass"
                     type="password"
-                    placeholder="Enter iPro password"
+                    placeholder="Введите пароль"
                     value={iproPass}
                     onChange={(e) => setIproPass(e.target.value)}
                   />
@@ -233,9 +252,9 @@ export default function Settings({ session }: Props) {
                   <Phone className="size-5 text-chart-4" />
                 </div>
                 <div>
-                  <CardTitle>VSE Store</CardTitle>
+                  <CardTitle>ВсеИнструменты</CardTitle>
                   <CardDescription>
-                    Phone authentication for VSE Store access
+                    Авторизационные данные для магазина ВсеИнструменты
                   </CardDescription>
                 </div>
               </div>
@@ -247,7 +266,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="vse-login"
                     type="text"
-                    placeholder="Enter VSE login"
+                    placeholder="Введите логин"
                     value={vseLogin}
                     onChange={(e) => setVseLogin(e.target.value)}
                   />
@@ -257,7 +276,7 @@ export default function Settings({ session }: Props) {
                   <Input
                     id="vse-pass"
                     type="password"
-                    placeholder="Enter VSE password"
+                    placeholder="Введите пароль"
                     value={vsePass}
                     onChange={(e) => setVsePass(e.target.value)}
                   />
