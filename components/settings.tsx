@@ -33,10 +33,9 @@ export default function Settings({ session }: Props) {
   const [iproLoading, setIproLoading] = useState(false);
 
   // VSE Store state
-  const [vsePhone, setVsePhone] = useState("");
-  const [vseCode, setVseCode] = useState("");
-  const [vsePhoneLoading, setVsePhoneLoading] = useState(false);
-  const [vseCodeLoading, setVseCodeLoading] = useState(false);
+  const [vseLogin, setVseLogin] = useState("");
+  const [vsePass, setVsePass] = useState("");
+  const [vseLoading, setVseLoading] = useState(false);
 
   const saveRsCredentials = async () => {
     if (!rsLogin || !rsPass) {
@@ -47,7 +46,7 @@ export default function Settings({ session }: Props) {
     setRsLoading(true);
     try {
       const response = await fetch(
-        `http://146.103.103.157:8010/user-data/rs?user_id=${userId}&rs_login=${encodeURIComponent(rsLogin)}&rs_pass=${encodeURIComponent(rsPass)}`,
+        `http://146.103.103.157:8001/user-data/rs?user_id=${userId}&rs_login=${encodeURIComponent(rsLogin)}&rs_pass=${encodeURIComponent(rsPass)}`,
         { method: "POST" },
       );
 
@@ -72,7 +71,7 @@ export default function Settings({ session }: Props) {
     setIproLoading(true);
     try {
       const response = await fetch(
-        `http://146.103.103.157:8010/user-data/ipro?user_id=${userId}&ipro_login=${encodeURIComponent(iproLogin)}&ipro_pass=${encodeURIComponent(iproPass)}`,
+        `http://146.103.103.157:8001/user-data/ipro?user_id=${userId}&ipro_login=${encodeURIComponent(iproLogin)}&ipro_pass=${encodeURIComponent(iproPass)}`,
         { method: "POST" },
       );
 
@@ -88,16 +87,16 @@ export default function Settings({ session }: Props) {
     }
   };
 
-  const saveVsePhone = async () => {
-    if (!vsePhone) {
-      toast.error("Please enter VSE Store phone number");
+  const saveVseCredentials = async () => {
+    if (!vseLogin || !vsePass) {
+      toast.error("Please fill in all VSE Store fields");
       return;
     }
 
-    setVsePhoneLoading(true);
+    setVseLoading(true);
     try {
       const response = await fetch(
-        `http://146.103.103.157:8010/user-data/vse-phone?user_id=${userId}&vse_phone=${encodeURIComponent(vsePhone)}`,
+        `http://146.103.103.157:8001/user-data/vse-creds?user_id=${userId}&vse_login=${encodeURIComponent(vseLogin)}&vse_pass=${encodeURIComponent(vsePass)}`,
         { method: "POST" },
       );
 
@@ -109,29 +108,7 @@ export default function Settings({ session }: Props) {
     } catch (error) {
       toast.error("Failed to save VSE Store phone number");
     } finally {
-      setVsePhoneLoading(false);
-    }
-  };
-
-  const saveVseCode = async () => {
-    toast.error("Please enter VSE Store verification code");
-
-    setVseCodeLoading(true);
-    try {
-      const response = await fetch(
-        `http://146.103.103.157:8010/user-data/vse-code?user_id=${userId}&vse_code=${encodeURIComponent(vseCode)}`,
-        { method: "POST" },
-      );
-
-      if (response.ok) {
-        toast.success("VSE Store code saved successfully");
-      } else {
-        throw new Error("Failed to save code");
-      }
-    } catch (error) {
-      toast.error("Failed to save VSE Store code");
-    } finally {
-      setVseCodeLoading(false);
+      setVseLoading(false);
     }
   };
 
@@ -264,54 +241,36 @@ export default function Settings({ session }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="vse-phone">Phone Number</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="vse-phone"
-                      type="tel"
-                      placeholder="Enter phone number"
-                      value={vsePhone}
-                      onChange={(e) => setVsePhone(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button
-                      onClick={saveVsePhone}
-                      disabled={vsePhoneLoading}
-                      variant="secondary"
-                    >
-                      {vsePhoneLoading && (
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                      )}
-                      Save Phone
-                    </Button>
-                  </div>
+                  <Label htmlFor="ipro-login">Логин</Label>
+                  <Input
+                    id="vse-login"
+                    type="text"
+                    placeholder="Enter VSE login"
+                    value={vseLogin}
+                    onChange={(e) => setVseLogin(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="vse-code">Verification Code</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="vse-code"
-                      type="text"
-                      placeholder="Enter verification code"
-                      value={vseCode}
-                      onChange={(e) => setVseCode(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button
-                      onClick={saveVseCode}
-                      disabled={vseCodeLoading}
-                      variant="secondary"
-                    >
-                      {vseCodeLoading && (
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                      )}
-                      Verify Code
-                    </Button>
-                  </div>
+                  <Label htmlFor="ipro-pass">Пароль</Label>
+                  <Input
+                    id="vse-pass"
+                    type="password"
+                    placeholder="Enter VSE password"
+                    value={vsePass}
+                    onChange={(e) => setVsePass(e.target.value)}
+                  />
                 </div>
               </div>
+              <Button
+                onClick={saveVseCredentials}
+                disabled={vseLoading}
+                className="w-full sm:w-auto"
+              >
+                {vseLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                Сохранить
+              </Button>
             </CardContent>
           </Card>
         </div>
