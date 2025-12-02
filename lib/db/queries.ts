@@ -31,6 +31,7 @@ import {
   offerNumber,
   priceRequests,
   baseRequests,
+  userSettings,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -625,5 +626,21 @@ export async function deletePriceRequestById({ id }: { id: number }) {
     return result;
   } catch (error) {
     throw new ChatSDKError("bad_request:database", "Не удалось удалить запрос");
+  }
+}
+
+export async function getUserSettings(user_id) {
+  try {
+    const [result] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(user_id, userSettings.user_id));
+
+    return result;
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get price requests",
+    );
   }
 }

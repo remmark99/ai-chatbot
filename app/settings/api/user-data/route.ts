@@ -1,14 +1,34 @@
+import { auth } from "@/app/(auth)/auth";
+import { getUserSettings } from "@/lib/db/queries";
+import { ChatSDKError } from "@/lib/errors";
 import { NextRequest, NextResponse } from "next/server";
 
 const RS_URL = "http://146.103.103.157:8080/user-data/rs";
 const IPRO_URL = "http://146.103.103.157:8080/user-data/ipro";
 const VSE_URL = "http://146.103.103.157:8080/user-data/vse-creds";
 
+export async function GET() {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return new ChatSDKError("unauthorized:chat").toResponse();
+    }
+
+    const data = await getUserSettings(session.user.id);
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to fetch data" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   const { pathname, searchParams } = new URL(req.url);
   // Allow client to specify store in POST body
   const { store, user_id, login, pass } = await req.json();
-  console.log(store, user_id, login);
 
   let upstreamUrl = "";
   let urlSearchParams = new URLSearchParams();

@@ -200,4 +200,16 @@ export const baseRequests = pgTable("base_requests_tmp", {
   isIPro: boolean("is_ipro").default(true),
 });
 
+export const userSettings = pgTable("users_data_tmp", {
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => user.id),
+  rsLogin: text("rs_login"),
+  rsPass: text("rs_pass"),
+  iproLogin: text("ipro_login"),
+  iproPass: text("ipro_pass"),
+  vseLogin: text("vse_login"),
+  vsePass: text("vse_pass"),
+});
+
 export type Stream = InferSelectModel<typeof stream>;

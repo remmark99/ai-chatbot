@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Store, Lock, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Session } from "next-auth";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "./ui/skeleton";
 
 interface Props {
   session: Session;
@@ -21,6 +23,15 @@ interface Props {
 
 export default function Settings({ session }: Props) {
   const userId = session.user.id;
+
+  const { data: userData, isLoading: isInitialLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const res = await fetch(`/settings/api/user-data`);
+      if (!res.ok) throw new Error("Failed to fetch user data");
+      return res.json();
+    },
+  });
 
   // RS Store state
   const [rsLogin, setRsLogin] = useState("");
@@ -36,6 +47,17 @@ export default function Settings({ session }: Props) {
   const [vseLogin, setVseLogin] = useState("");
   const [vsePass, setVsePass] = useState("");
   const [vseLoading, setVseLoading] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      setRsLogin(userData.rsLogin ?? "");
+      setRsPass(userData.rsPass ?? "");
+      setIproLogin(userData.iproLogin ?? "");
+      setIproPass(userData.iproPass ?? "");
+      setVseLogin(userData.vseLogin ?? "");
+      setVsePass(userData.vsePass ?? "");
+    }
+  }, [userData]);
 
   const saveRsCredentials = async () => {
     if (!rsLogin || !rsPass) {
@@ -160,36 +182,56 @@ export default function Settings({ session }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="rs-login">Логин</Label>
-                  <Input
-                    id="rs-login"
-                    type="text"
-                    placeholder="Введите логин"
-                    value={rsLogin}
-                    onChange={(e) => setRsLogin(e.target.value)}
-                  />
+              {isInitialLoading ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="rs-login">Логин</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rs-pass">Пароль</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="col-span-2">
+                    <Skeleton className="h-10 w-full sm:w-32 rounded-md" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="rs-pass">Пароль</Label>
-                  <Input
-                    id="rs-pass"
-                    type="password"
-                    placeholder="Введите пароль"
-                    value={rsPass}
-                    onChange={(e) => setRsPass(e.target.value)}
-                  />
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="rs-login">Логин</Label>
+                    <Input
+                      id="rs-login"
+                      type="text"
+                      placeholder="Введите логин"
+                      value={rsLogin}
+                      onChange={(e) => setRsLogin(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rs-pass">Пароль</Label>
+                    <Input
+                      id="rs-pass"
+                      type="password"
+                      placeholder="Введите пароль"
+                      value={rsPass}
+                      onChange={(e) => setRsPass(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Button
+                      onClick={saveRsCredentials}
+                      disabled={rsLoading}
+                      className="w-full sm:w-auto"
+                    >
+                      {rsLoading && (
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                      )}
+                      Сохранить
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <Button
-                onClick={saveRsCredentials}
-                disabled={rsLoading}
-                className="w-full sm:w-auto"
-              >
-                {rsLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Сохранить
-              </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -209,38 +251,56 @@ export default function Settings({ session }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="ipro-login">Логин</Label>
-                  <Input
-                    id="ipro-login"
-                    type="text"
-                    placeholder="Введите логин"
-                    value={iproLogin}
-                    onChange={(e) => setIproLogin(e.target.value)}
-                  />
+              {isInitialLoading ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="ipro-login">Логин</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ipro-pass">Пароль</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="col-span-2">
+                    <Skeleton className="h-10 w-full sm:w-32 rounded-md" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ipro-pass">Пароль</Label>
-                  <Input
-                    id="ipro-pass"
-                    type="password"
-                    placeholder="Введите пароль"
-                    value={iproPass}
-                    onChange={(e) => setIproPass(e.target.value)}
-                  />
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="ipro-login">Логин</Label>
+                    <Input
+                      id="ipro-login"
+                      type="text"
+                      placeholder="Введите логин"
+                      value={iproLogin}
+                      onChange={(e) => setIproLogin(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ipro-pass">Пароль</Label>
+                    <Input
+                      id="ipro-pass"
+                      type="password"
+                      placeholder="Введите пароль"
+                      value={iproPass}
+                      onChange={(e) => setIproPass(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Button
+                      onClick={saveIproCredentials}
+                      disabled={iproLoading}
+                      className="w-full sm:w-auto"
+                    >
+                      {iproLoading && (
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                      )}
+                      Сохранить
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <Button
-                onClick={saveIproCredentials}
-                disabled={iproLoading}
-                className="w-full sm:w-auto"
-              >
-                {iproLoading && (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                )}
-                Сохранить
-              </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -260,36 +320,56 @@ export default function Settings({ session }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="ipro-login">Логин</Label>
-                  <Input
-                    id="vse-login"
-                    type="text"
-                    placeholder="Введите логин"
-                    value={vseLogin}
-                    onChange={(e) => setVseLogin(e.target.value)}
-                  />
+              {isInitialLoading ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="vse-login">Логин</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vse-pass">Пароль</Label>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <div className="col-span-2">
+                    <Skeleton className="h-10 w-full sm:w-32 rounded-md" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ipro-pass">Пароль</Label>
-                  <Input
-                    id="vse-pass"
-                    type="password"
-                    placeholder="Введите пароль"
-                    value={vsePass}
-                    onChange={(e) => setVsePass(e.target.value)}
-                  />
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="vse-login">Логин</Label>
+                    <Input
+                      id="vse-login"
+                      type="text"
+                      placeholder="Введите логин"
+                      value={vseLogin}
+                      onChange={(e) => setVseLogin(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vse-pass">Пароль</Label>
+                    <Input
+                      id="vse-pass"
+                      type="password"
+                      placeholder="Введите пароль"
+                      value={vsePass}
+                      onChange={(e) => setVsePass(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Button
+                      onClick={saveVseCredentials}
+                      disabled={vseLoading}
+                      className="w-full sm:w-auto"
+                    >
+                      {vseLoading && (
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                      )}
+                      Сохранить
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <Button
-                onClick={saveVseCredentials}
-                disabled={vseLoading}
-                className="w-full sm:w-auto"
-              >
-                {vseLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Сохранить
-              </Button>
+              )}
             </CardContent>
           </Card>
         </div>
