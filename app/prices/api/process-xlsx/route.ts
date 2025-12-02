@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     // Forward the request to your server
-    const response = await fetch(process.env.PRICES_API_URL, {
+    const response = await fetch(process.env.PRICES_API_URL!, {
       method: "POST",
       body: formData,
     });

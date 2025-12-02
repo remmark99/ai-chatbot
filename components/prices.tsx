@@ -31,7 +31,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "./ui/alert-dialog";
 
 interface Props {
@@ -218,8 +217,8 @@ export function Prices({ session }: Props) {
       )
       .filter((request) => {
         if (websiteFilter.length === 0) return true;
-        return (request.websites ? JSON.parse(request.websites) : []).some(
-          (website) => websiteFilter.includes(website),
+        return request.websites.some((website) =>
+          websiteFilter.includes(website),
         );
       })
       .sort(
@@ -489,7 +488,7 @@ export function Prices({ session }: Props) {
                       priceRequest.websites.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {priceRequest.websites &&
-                            JSON.parse(priceRequest.websites).map((website) => (
+                            priceRequest.websites.map((website) => (
                               <Badge
                                 key={website}
                                 variant="outline"
