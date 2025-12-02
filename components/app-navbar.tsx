@@ -54,6 +54,14 @@ export default function NavBar() {
             Цены
           </Button>
         </Link>
+        <Link href="/settings">
+          <Button
+            className="md:h-[34px]"
+            variant={currentPath === "/settings" ? "default" : "outline"}
+          >
+            Настройки
+          </Button>
+        </Link>
         {/* Add more links here as needed */}
       </nav>
       <div className="right-12 top-1.5 z-10 fixed">
