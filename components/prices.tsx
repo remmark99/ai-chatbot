@@ -483,6 +483,11 @@ export function Prices({ session }: Props) {
                             )}
                           </span>
                         )}
+                      {priceRequest.goodsAmount && (
+                        <span className="text-blue-600 font-medium">
+                          Товаров: {priceRequest.goodsAmount}
+                        </span>
+                      )}
                     </div>
                     {priceRequest.websites &&
                       priceRequest.websites.length > 0 && (
