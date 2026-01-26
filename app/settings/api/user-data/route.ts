@@ -3,9 +3,9 @@ import { getUserSettings } from "@/lib/db/queries";
 import { ChatSDKError } from "@/lib/errors";
 import { NextRequest, NextResponse } from "next/server";
 
-const RS_URL = "http://146.103.103.157:8080/user-data/rs";
-const IPRO_URL = "http://146.103.103.157:8080/user-data/ipro";
-const VSE_URL = "http://146.103.103.157:8080/user-data/vse-creds";
+const RS_URL = `${process.env.PRICES_API_URL!}/user-data/rs`;
+const IPRO_URL = `${process.env.PRICES_API_URL!}/user-data/ipro`;
+const VSE_URL = `${process.env.PRICES_API_URL!}/user-data/vse-creds`;
 
 export async function GET() {
   try {
